@@ -20,6 +20,7 @@ import android.text.InputType;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
@@ -33,7 +34,9 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -41,6 +44,7 @@ import android.widget.Toast;
 
 public class GalacticNight extends Activity {
 	private ScreenControl screenControl;
+	private LinearLayout main;
 	public static final boolean DEBUG = true;
 
 	private void message(String title, String msg) {
@@ -105,12 +109,30 @@ public class GalacticNight extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.main);
+//		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		main = (LinearLayout)getLayoutInflater().inflate(R.layout.main, null);
+		setContentView(main);
 	}
+	
+    void resize() {
+    	LinearLayout ll = main;
+    	FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams)ll.getLayoutParams();
+
+    	int h = getWindowManager().getDefaultDisplay().getHeight();
+    	int w = getWindowManager().getDefaultDisplay().getWidth();
+    	
+    	int min = h<w ? h : w;
+    	
+    	lp.width = min*9/10;
+		ll.setLayoutParams(lp);
+    }
+
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		resize();
 		
 		GalacticNight.log("resume");
 		

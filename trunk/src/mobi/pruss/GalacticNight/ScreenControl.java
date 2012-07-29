@@ -10,6 +10,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +45,10 @@ public class ScreenControl {
 	static final String[][] files = { {"mdnie_tune_ui_dynamic_mode", "mdnie_tune_dynamic_mode"},
 		{"mdnie_tune_ui_standard_mode", "mdnie_tune_standard_mode"},
 		{null, "mdnie_tune_movie_mode"} };
+	static final String[][] checksums = 
+		{{ "e2276e0176e17890788ccbf4909e97c4", "87fc844c950c1e842f264720f9d4b76c"},
+		{ "5775097528aaf50efe1f58d2b3e577ee", "23af263efb2f7f94586c71af256f86ec"},
+		{ null, "7d643e4da5235ea3606b4badf770e27b"}};
 	
 
 	static final int[] normal_dynamic 
@@ -138,8 +144,9 @@ public class ScreenControl {
 			return false;
 		}
 		else {
+			GalacticNight.log("Successful run");
 			if (checkValidity() && makeBackups()) {
-				return true;
+				return checksum(); // TODO: allow override
 			}
 			else {
 				GalacticNight.log("Failed validity check or backup");
@@ -480,5 +487,77 @@ public class ScreenControl {
 			GalacticNight.log("error "+selectorFile+" "+e);
 		}
 		
+	}
+	
+	private boolean checksum(File f, MessageDigest md) {
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader( new FileReader(f));
+		} catch (FileNotFoundException e1) {
+			return false;
+		}
+		
+		Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX]([a-fA-F0-9]+)");
+		String line;
+		try {
+			while(null != (line = reader.readLine())) {
+				Matcher m = pat.matcher(line);
+				if (m.find()) {
+					int hex1 = Integer.parseInt(m.group(1),16);
+					int hex2 = Integer.parseInt(m.group(2),16);
+					md.update((byte) (hex1 >> 8));
+					md.update((byte) (hex1 & 0xff));
+					md.update((byte) (hex2 >> 8));
+					md.update((byte) (hex2 & 0xff));
+				}
+			}
+		} catch (NumberFormatException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+		
+		return true;		
+	}
+	
+	private boolean checksum(int mode, int fType) {
+		File in = new File(backupDir + files[mode][fType]);
+		
+		try {
+			MessageDigest md = MessageDigest.getInstance("md5");
+			
+			if (!checksum(in, md)) {
+				return false;
+			}
+			
+			byte[] digest = md.digest();
+			String s = "";
+			for(int i=0; i<digest.length; i++) {
+				s += String.format("%02x", (int)(digest[i]&0xFF));
+			}
+			if ( s.compareTo(checksums[mode][fType]) != 0) {
+				GalacticNight.log("mismatch "+in+" "+s+" "+checksums[mode][fType]);
+			}
+			return 0 == s.compareTo(checksums[mode][fType]);
+		} catch (NoSuchAlgorithmException e) {
+			GalacticNight.log(""+e);
+			return false;
+		}
+	}
+	
+	public boolean checksum() {
+		for (int i=0; i<modes.length; i++) {
+			GalacticNight.log("checking "+modes[i]);
+			if (files[i][UI] != null && !checksum(i,UI)) {
+					GalacticNight.log("failed checksum at "+files[i][UI]);
+					return false;
+			}
+			if (!checksum(i,ADJ)) {
+				GalacticNight.log("failed checksum at "+files[i][ADJ]);
+				return false;
+			}
+		}
+		
+		return true;
 	}
 }
