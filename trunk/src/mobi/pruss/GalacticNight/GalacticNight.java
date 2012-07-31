@@ -45,6 +45,8 @@ import android.widget.Toast;
 public class GalacticNight extends Activity {
 	private ScreenControl screenControl;
 	private LinearLayout main;
+	private boolean installButton;
+	private boolean installed;
 	public static final boolean DEBUG = true;
 
 	private void message(String title, String msg) {
@@ -79,10 +81,48 @@ public class GalacticNight extends Activity {
 		alertDialog.show();		
 	}
 	
+	private void setInstalled(boolean value) {
+		installed = value;
+		
+		Button b = (Button)findViewById(R.id.install);		
+		
+		if (installed) {
+			b.setText("Uninstall");
+			show(R.id.normal);
+			show(R.id.red);
+			show(R.id.green);
+			show(R.id.bw);
+			show(R.id.sepia);
+			show(R.id.movie);
+			show(R.id.dynamic);
+			show(R.id.reverse);
+		}
+		else {
+			b.setText("Install");
+			hide(R.id.normal);
+			hide(R.id.red);
+			hide(R.id.green);
+			hide(R.id.bw);
+			hide(R.id.sepia);
+			hide(R.id.movie);
+			hide(R.id.dynamic);
+			hide(R.id.reverse);
+		}
+	}
+	
+	private void show(int id) {
+		findViewById(id).setVisibility(View.VISIBLE);
+	}
+
+	private void hide(int id) {
+		findViewById(id).setVisibility(View.INVISIBLE);
+	}
+
+
 	public void mode(View v) {
 		switch(v.getId()) {
 		case R.id.normal:
-			screenControl.set(ScreenControl.NORMAL);
+			screenControl.set(ScreenControl.STANDARD);
 			break;
 		case R.id.red:
 			screenControl.set(ScreenControl.RED);
@@ -93,14 +133,44 @@ public class GalacticNight extends Activity {
 		case R.id.bw:
 			screenControl.set(ScreenControl.BW);
 			break;
-		case R.id.reversed_red:
-			screenControl.set(ScreenControl.REVERSED_RED);
+		case R.id.sepia:
+			screenControl.set(ScreenControl.SEPIA);
 			break;
-		case R.id.reversed_green:
-			screenControl.set(ScreenControl.REVERSED_GREEN);
+		case R.id.movie:
+			screenControl.set(ScreenControl.MOVIE);
 			break;
-		case R.id.reversed_bw:
-			screenControl.set(ScreenControl.REVERSED_BW);
+		case R.id.dynamic:
+			screenControl.set(ScreenControl.DYNAMIC);
+			break;
+		case R.id.reverse:
+			screenControl.set(ScreenControl.REVERSE);
+			break;
+		case R.id.install:
+			if (installed) {
+				screenControl.uninstall();
+				if (screenControl.canUninstall()) {
+					message("Failure uninstalling",
+							"This shouldn't have happened but it did: we were unable to "+
+							"uninstall GalacticNight control.  You can try again later, "+
+							"or you can attempt to restore the /system/etc/tune_ui_dynamic_mode "+
+							"and /system/etc/tune_ui_dynamic_mode files from their *.orig copies.");					
+				}
+				else {
+					setInstalled(false);
+				}
+			}
+			else {
+				if (!screenControl.install()) {
+					message("Failure installing",
+							"It seems that your device is not supported.  You may want to "+
+							"install catlog from Android Market, try installing GalacticNight again "+
+							"and if it fails again, go immediately to catlog and send your log and device information "+
+							"to arpruss@gmail.com");
+				}
+				else {
+					setInstalled(true);
+				}
+			}
 			break;
 		}
 	}
@@ -109,9 +179,21 @@ public class GalacticNight extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-//		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		main = (LinearLayout)getLayoutInflater().inflate(R.layout.main, null);
 		setContentView(main);
+		
+		screenControl = new ScreenControl(this);
+		if (!screenControl.valid) {
+			message("Failure starting",
+					"It seems that your device is not rooted or not supported.  You may want to "+
+					"install catlog from Android Market, try installing GalacticNight again "+
+					"and if it fails again, go immediately to catlog and send your log and device information "+
+					"to arpruss@gmail.com");
+			finish();
+		}
+		else {
+			setInstalled(screenControl.canUninstall());
+		}
 	}
 	
     void resize() {
@@ -135,22 +217,7 @@ public class GalacticNight extends Activity {
 		resize();
 		
 		GalacticNight.log("resume");
-		
-		screenControl = new ScreenControl(this);
-		
-		if (!screenControl.valid) {
-			fatalError("Device not supported",
-					"Your device is either not supported or not rooted.");
-		}
 	}	
-	
-	@Override
-	public void onPause() {
-		super.onPause();
-		
-		if (screenControl.valid)
-			screenControl.lock();
-	}
 	
 	static public void log(String s) {
 		if (DEBUG) {
