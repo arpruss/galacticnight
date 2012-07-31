@@ -23,49 +23,62 @@ public class ScreenControl {
 	Context context;
 	boolean valid;
 	String systemDevice;
-	static final int NORMAL = 0;
-	static final int RED = 1;
-	static final int GREEN = 2;
-	static final int BW = 3;
-	static final int REVERSED_RED = 4;
-	static final int REVERSED_GREEN = 5;
-	static final int REVERSED_BW = 6;
-	
-	String tmpSuffix = ".GalacticNight.tmp";
-	private String backupDir;
-	static final String selectorFile = "/sys/devices/virtual/mdnieset_ui/switch_mdnieset_ui/mdnieset_user_select_file_cmd";
-	static final String mdnieDir = "/system/etc/";
-	static final String[] modes = {"movie", "standard", "dynamic"};
 	static final int DYNAMIC = 0;
 	static final int STANDARD = 1;
 	static final int MOVIE = 2;
-
-	static final int UI = 0;
-	static final int ADJ = 1;
-	static final String[][] files = { {"mdnie_tune_ui_dynamic_mode", "mdnie_tune_dynamic_mode"},
-		{"mdnie_tune_ui_standard_mode", "mdnie_tune_standard_mode"},
-		{null, "mdnie_tune_movie_mode"} };
-	static final String[][] checksums = 
-		{{ "e2276e0176e17890788ccbf4909e97c4", "87fc844c950c1e842f264720f9d4b76c"},
-		{ "5775097528aaf50efe1f58d2b3e577ee", "23af263efb2f7f94586c71af256f86ec"},
-		{ null, "7d643e4da5235ea3606b4badf770e27b"}};
+	static final int RED = 3;
+	static final int GREEN = 4;
+	static final int BW = 5;
+	static final int REVERSE = 6;
+	static final int SEPIA = 7;
 	
+	static final String origSuffix = ".orig";
+	static final String[] srcUI = { "mdnie_tune_ui_dynamic_mode"+origSuffix,
+		"mdnie_tune_ui_standard_mode",
+		"mdnie_tune_ui_movie_mode"
+	};
+	static final String[] srcAdj = { "mdnie_tune_dynamic_mode"+origSuffix,
+		"mdnie_tune_standard_mode",
+		"mdnie_tune_movie_mode"
+	};
+	static final String tmpSuffix = ".tmp";
+	private String gnDir;
+	private String unlockPartition;
+	private String lockPartition;
+	static final String selectorFile = "/sys/devices/virtual/mdnieset_ui/switch_mdnieset_ui/mdnieset_user_select_file_cmd";
+	static final String mdnieDir = "/system/etc/";
+	static final String[] builtinModes = { "movie", "standard", "dynamic"};
 
-	static final int[] normal_dynamic 
-	   = { 0x0000, 0x0000, 0xffff, 0xffff, // R
-		   0x0000, 0xffff, 0x0000, 0xffff, //G
-		   0x00ff, 0x00ff, 0x00ff, 0x00ff  // B
+	static final int LINK_MODE = 0;
+	static final String LINK_UI = "mdnie_tune_ui_dynamic_mode";
+	static final String LINK_ADJ = "mdnie_tune_dynamic_mode";
+	static final String DYNAMIC_UI = "mdnie_tune_ui_dynamic_mode";
+	static final String DYNAMIC_ADJ = "mdnie_tune_dynamic_mode";
+	static final String STANDARD_UI = "mdnie_tune_ui_standard_mode";
+	static final String STANDARD_ADJ = "mdnie_tune_standard_mode";
+	static final String MOVIE_UI = "mdnie_tune_ui_standard_mode";
+	static final String MOVIE_ADJ = "mdnie_tune_standard_mode";
+	static final String SUBST_UI = "mdnie_tune_ui";
+	static final String SUBST_ADJ = "mdnie_tune";
+	
+	static final String LINK_UI_CHECKSUM = "e2276e0176e17890788ccbf4909e97c4";
+	static final String LINK_ADJ_CHECKSUM = "87fc844c950c1e842f264720f9d4b76c";
+	
+	static final int[] sepia 
+	  = { 0x0000, //r
+		  0x0000,
+		  0xffff,
+		  0xffe9,
+		  0x0000, //g
+		  0xffff,
+		  0x0000,
+		  0xffd8,
+		  0x00ff, // b
+		  0x00ff,
+		  0x00ff,
+		  0x00ba
 	};
-	static final int[] normal_standard 
-	   = { 0x0000, 0x0000, 0xffff, 0xffff, // R
-		   0x0000, 0xffff, 0x0000, 0xffff, //G
-		   0x00ff, 0x00ff, 0x00ff, 0x00ff  // B
-	};
-	static final int[] normal_movie 
-	   = { 0x0000, 0x6000, 0xf0f0, 0xf0ff, // R
-		   0x0050, 0xd8f0, 0x2500, 0xf0fb, //G
-		   0x00f0, 0x20f0, 0x28f0, 0x00f0  // B
-	};
+	
 	static final int[] red
 	   = { 0x001D,
 		0x96B3,
@@ -79,6 +92,21 @@ public class ScreenControl {
 		0x0000,
 		0x0000,
 		0x0000
+	};
+	static final int[] blue
+	   = { 
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x001D,
+		0x96B3,
+		0x4C69,
+		0xe2ff,
 	};
 	static final int[] green
 	   = {
@@ -114,124 +142,93 @@ public class ScreenControl {
 	public ScreenControl(Context context) {
 		this.context = context;
 		
-		File backupDirFile = new File(Environment.getExternalStorageDirectory().getPath()+"/GalacticNight_backup");
-		backupDirFile.mkdir();
-		backupDir = backupDirFile.getPath()+"/";
+		File gnDirFile = new File(Environment.getExternalStorageDirectory().getPath()+"/GalacticNight");
+		gnDirFile.mkdir();
+		gnDir = gnDirFile.getPath() + "/";
 		
-		if (!unlock()) {
-			valid = false;
+		valid = false;
+		
+		if (Root.runOne("chmod 666 "+selectorFile)) {
+			systemDevice = getSystemDevice();
+			
+			if (systemDevice != null) {
+				unlockPartition = "mount -o remount,rw "+systemDevice+" /system";
+				lockPartition = "mount -o remount,ro "+systemDevice+" /system";
+				valid = true;
+			}
 		}
-		else {
-			valid = true;
-		}
+		
 	}
 	
-	public boolean unlock() {
-		systemDevice = getSystemDevice();
-		
-		if (systemDevice == null) {
-			GalacticNight.log("cannot find /system");
+	private boolean existsInMdnieDir(String name) {
+		return new File(mdnieDir + name).exists();
+	}
+	
+	public boolean canUninstall() {
+		return existsInMdnieDir(LINK_UI + origSuffix) || 
+				existsInMdnieDir(LINK_ADJ + origSuffix);
+	}
+	
+	public boolean install() {
+		if (!checksum()) {
+			GalacticNight.log("dynamic files fail checksum");
 			return false;
 		}
 		
-		GalacticNight.log("system device "+systemDevice);
-		
-		String cmd = "mount -o remount,rw "+systemDevice+" /system; "+
-				"chmod 666 "+getFileList();
-		if (!Root.runOne(cmd)) {
-			GalacticNight.log("Error in "+cmd);
-			lock();
-			return false;
-		}
-		else {
-			GalacticNight.log("Successful run");
-			if (checkValidity() && makeBackups()) {
-				return checksum(); // TODO: allow override
-			}
-			else {
-				GalacticNight.log("Failed validity check or backup");
-				lock();
-				return false;
-			}
-		}
-	}
-	
-	public void lock() {
-		if (systemDevice != null)
-			Root.runOne("mount -o remount,ro "+systemDevice+" /system; "+
-					"chmod 644 "+getFileList());
-	}
-	
-	private String getFileList() {
-		String list = selectorFile;
-		for (int i = 0; i < modes.length ; i++) {
-			if (files[i][UI] != null)
-				list += " "+mdnieDir + files[i][UI];
-			list += " " + mdnieDir + files[i][ADJ];
-		}
-
-		return list;
-	}
-
-	private boolean checkValidity() {
-		GalacticNight.log("Checking validity");
-		for (int i=0; i<modes.length; i++) {
-			if (files[i][UI] != null) 
-				if (!checkFileWriteable(mdnieDir+files[i][UI], true))
-					return false;
-			if (!checkFileWriteable(mdnieDir+files[i][ADJ], true))
-				return false;
-		}
-		return checkFileWriteable(selectorFile, false);
-	}
-	
-	private boolean makeBackups() {		
-		for (int i=0; i<modes.length; i++) {
-			if (files[i][UI] != null)
-				if (! makeBackup(files[i][UI]))
-					return false;
-			if (! makeBackup(files[i][ADJ]))
-				return false;
+		try {
+			copyFile(new File(mdnieDir+STANDARD_ADJ), new File(gnDir+SUBST_ADJ));
+			copyFile(new File(mdnieDir+STANDARD_UI), new File(gnDir+SUBST_UI));
+		} catch (IOException e) {
+			GalacticNight.log("cannot copy dynamic tuning file: "+e);
 		}
 		
-		return true;
-	}
-	
-	private static boolean checkFileWriteable(String filename, boolean tmp) {
-		GalacticNight.log("Checking writeability of "+filename);
-		File f = new File(filename);
-		if (! f.exists() || ! f.canWrite()) {
-			GalacticNight.log("Not writeable");
+		selectMode(STANDARD);
+		saveMode(STANDARD);
+
+		if (! Root.runOne(
+				unlockPartition + " && " +
+				"mv "+mdnieDir+LINK_ADJ+" "+mdnieDir+LINK_ADJ+origSuffix +" && "+
+				"mv "+mdnieDir+LINK_UI+" "+mdnieDir+LINK_UI+origSuffix + " && "+
+				"ln -s \""+gnDir+SUBST_ADJ+"\" "+mdnieDir+LINK_ADJ + "; " +
+				"ln -s \""+gnDir+SUBST_UI+"\" "+mdnieDir+LINK_UI + " ; "+
+				lockPartition)) {
+			uninstall();
 			return false;
 		}
-		if (tmp) {
-			File t = new File(filename+tmp);
-			if (t.exists()) {
-				if (!t.canWrite()) {
-					GalacticNight.log("Tmp not writeable");
-					return false;
-				}
-				else {
-					return true;
-				}
-			}
-
-			try {
-				if (!t.createNewFile()) {
-					GalacticNight.log("Tmp not creatable");
-					return false;
-				}
-				t.delete();
-				return true;
-			} catch (IOException e) {
-				GalacticNight.log("Tmp not creatable");
-				return false;
-			}
-		}
-		else {
-			return true;
+		
+		return true;				
+	}
+	
+	public void uninstall() {
+		selectMode(STANDARD);
+		saveMode(STANDARD);
+		
+		Root.runOne(
+				unlockPartition + " ; " +
+				"mv "+mdnieDir+LINK_ADJ+origSuffix+" "+mdnieDir+LINK_ADJ+" ; "+
+				"mv "+mdnieDir+LINK_UI+origSuffix+" "+mdnieDir+LINK_UI+" ; "+
+				lockPartition);				
+	}
+	
+	private void selectMode(int mode) {
+		File out = new File(selectorFile);
+		try {
+			FileOutputStream stream = new FileOutputStream(out);
+			stream.write((""+mode).getBytes());
+			stream.close();
+		} catch (FileNotFoundException e) {
+			GalacticNight.log("error "+selectorFile+" "+e);
+		} catch (IOException e) {
+			GalacticNight.log("error "+selectorFile+" "+e);
 		}
 	}
+	
+	private void saveMode(int mode) {
+		android.provider.Settings.System.putInt(context.getContentResolver(),
+				"screen_mode_setting", mode);
+
+	}
+
 	
 	public static String getSystemDevice() {
 		try {
@@ -241,7 +238,7 @@ public class ScreenControl {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 			String line;
-			Pattern pat = Pattern.compile("([^\\s]+)\\s+\\/system\\s");
+			Pattern pat = Pattern.compile("^([^\\s]+)\\s+(on\\s+)?\\/system\\s");
 			while(null != (line = reader.readLine())) {
 				Matcher m = pat.matcher(line);
 				if (m.find()) {
@@ -254,77 +251,118 @@ public class ScreenControl {
 		return null;
 	}
 	
-	final int[] colors(int mode, int setting) {
-		if (setting == NORMAL) {
-			if (mode == STANDARD)
-				return normal_standard;
-			else if (mode == DYNAMIC)
-				return normal_dynamic;
-			else if (mode == MOVIE)
-				return normal_movie;
-		}
-		else if (setting == RED)
-			return red;
-		else if (setting == GREEN) {
-			GalacticNight.log("green");
-			return green;
-		}
-		else if (setting == BW)
-			return bw;
-		else if (setting == REVERSED_RED)
-			return reverse(red, true, false, false);
-		else if (setting == REVERSED_GREEN)
-			return reverse(green, false, true, false);
-		else if (setting == REVERSED_BW)
-			return reverse(bw, true, true, true);
-
-		return null;
-	}
-
-	private int[] reverse(int[] c, boolean r, boolean g, boolean b) {
-		int[] out = new int[red.length];
-		for (int i = 0 ; i < 3; i++) {
-			for (int j = 0; j<4; j++) {
-				if ((i == 0 && r) || (i == 1 && g) || (i == 2 && b)) 
-					out[4*i + j] = reverse(c[4*i + j]);
-				else
-					out[4*i + j] = c[4*i + j];
-			}
-		}
-		return out;
-	}
-
-	private int reverse(int v) {
-		return (0xFF-(v & 0xFF)) | (0xFF00 - (v & 0xFF00));
-	}
-
 	public void set(int setting) {
-		if (setting == NORMAL) {
-			for (int i=0; i<modes.length; i++) 
-				if (!restoreBackup(i)) 
-					set(i, colors(i, NORMAL), false);
-			activate();
-		}
-		else {
-			for (int i=0; i<modes.length; i++) {
-				if (!set(i, colors(i, setting), true))
-					restoreBackup(i);
+		int[][] tweak = getTweak(setting);
+		
+		if (tweak != null) {			
+			saveMode(STANDARD);
+
+			if (!tweak(mdnieDir+STANDARD_ADJ, gnDir+SUBST_ADJ, getTweak(setting), false)) {
+				copyFile(mdnieDir+STANDARD_ADJ+origSuffix,gnDir+SUBST_UI);
+				selectMode(STANDARD);
 			}
-			activate();
+			else {
+				if (!tweak(mdnieDir+STANDARD_UI, gnDir+SUBST_UI, new int[][] {{0x0001, 0x0040 }}, false)) {
+					copyFile(mdnieDir+STANDARD_UI+origSuffix,gnDir+SUBST_UI);
+					copyFile(mdnieDir+STANDARD_ADJ+origSuffix,gnDir+SUBST_ADJ);
+					selectMode(STANDARD);
+				}
+				else {
+					selectMode(LINK_MODE);					
+				}
+			}
+		}
+		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC) {
+			saveMode(STANDARD);
+
+			if (copyFile(mdnieDir+srcAdj[setting],
+					gnDir+SUBST_ADJ) && 
+				copyFile(mdnieDir+srcUI[setting],
+						gnDir+SUBST_UI)) {
+				saveMode(setting);
+				selectMode(setting);
+			}
+			else {
+				selectMode(STANDARD);
+			}					
 		}
 	}
+	
+	private int[][] getTweak(int setting) {
+		if (setting == RED)
+			return getTweak(red);
+		else if (setting == GREEN)
+			return getTweak(green);
+		else if (setting == BW)
+			return getTweak(bw);
+		else if (setting == SEPIA)
+			return getTweak(sepia);
+		else if (setting == REVERSE)
+			return getReverseTweak(new File(gnDir + SUBST_ADJ));
+		else
+			return null;
+	}
+	
+	private int getInvertedPosition(int pos) {
+		return pos / 8 * 8 + (7 - (pos % 8));
+	}
+	
+	private int[][] getReverseTweak(File f) {
+		int[]c = new int[12];		
 
-	private boolean makeBackup(String file) {
-		File out = new File(backupDir + file);
-		if (out.exists())
-			return true;
-		
-		GalacticNight.log("Backing up "+file);
 		try {
-			copyFile(new File(mdnieDir + file), out);
+			BufferedReader reader = new BufferedReader( new FileReader(f));
+			String line;
+			Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX]([a-fA-F0-9]+).*");
+			while(null != (line = reader.readLine())) {
+				Matcher m = pat.matcher(line);
+				if (m.find()) {
+					int register = Integer.parseInt(m.group(1),16);
+					int value = Integer.parseInt(m.group(2),16);
+					
+					if (0xC8 <= register && register <= 0xD3) {
+						int pos = getInvertedPosition(2*(register-0xC8));
+						GalacticNight.log(""+(register-0xc8)+" -> "+pos+" "+String.format("%04x", value));
+						if (pos % 2 == 0) {
+							c[pos/2] |= (value >> 8) << 8;
+						}
+						else if (pos % 2 == 1) {
+							c[pos/2] |= ( value >> 8 );
+						}
+						pos = getInvertedPosition(2*(register-0xC8)+1);
+						GalacticNight.log(""+(register-0xc8)+" + -> "+pos);
+						if (pos % 2 == 0) {
+							c[pos/2] |= ( value & 0xFF) << 8;
+						}
+						else if (pos % 2 == 1) {
+							c[pos/2] |= ( value & 0xFF );
+						}
+					}
+				}
+			}
+		} catch (NumberFormatException e) {
+			return null;
 		} catch (IOException e) {
-			GalacticNight.log(""+e);
-			out.delete();
+			GalacticNight.log("ReverseTweak "+e);
+			return null;
+		}
+		
+		return getTweak(c);
+	}
+
+	private int[][] getTweak(int[] c) {
+		int[][] tweak = new int[c.length][2];
+		for (int i = 0; i < c.length ; i++) {
+			tweak[i][0] = 0xc8 + i;
+			tweak[i][1] = c[i];
+		}
+		return tweak;
+	}
+
+	private boolean copyFile(String src, String dest) {
+		try {
+			copyFile(new File(src), new File(dest));
+		} catch (IOException e) {
 			return false;
 		}
 		
@@ -332,6 +370,7 @@ public class ScreenControl {
 	}
 	
 	private void copyFile(File src, File dest) throws IOException {
+		GalacticNight.log("Copying "+src+" to "+dest);
 		byte[] buffer = new byte[2048]; 
 		FileInputStream in = new FileInputStream(src);
 		dest.createNewFile();
@@ -345,85 +384,31 @@ public class ScreenControl {
 		in.close();
 		out.close();
 	}
-	
-	private boolean restoreBackup(int i) {
-		boolean success = true;
-		if (files[i][UI] != null) {
-			success = restoreBackup(files[i][UI]);
-		}
-		return restoreBackup(files[i][ADJ]) && success;
-	}
-	
-	private boolean restoreBackup(String filename) {
-		GalacticNight.log("Restoring "+filename);
-		File tmp = new File(mdnieDir + filename + tmpSuffix);
-		try {
-			copyFile(new File(backupDir + filename), tmp);
-		} catch (IOException e) {
-			tmp.delete();
-			GalacticNight.log("Failing copying "+e);
-			return false;
-		}
-		if (!tmp.renameTo(new File(mdnieDir + filename))) {
-			GalacticNight.log("Failing renaming");
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
-
-	private boolean set(int mode, int[] colors, boolean setSCR) {
-		GalacticNight.log("set "+mode+ " "+colors[0]);
 		
-		if (colors == null)
-			return false;
-		
-		int[][] colorTweak = new int[colors.length][2];
-		
-		for (int i = 0; i<colors.length; i++) {
-			colorTweak[i][0] = 0xc8 + i; 
-			colorTweak[i][1] = colors[i];
-		}
-		
-		if (!setSCR && files[mode][UI] != null &&
-				!tweak(files[mode][UI], new int[][] {{0x0001, 0x0000 }})) 
-			return false;
-		
-		if (!tweak(files[mode][ADJ], colorTweak)) 
-			return false;
-		
-		if (setSCR && files[mode][UI] != null && 
-				!tweak(files[mode][UI], new int[][] {{0x0001, 0x0040 }})) 
-			return false;
-		
-		return true;
-	}
-	
-	private boolean tweak(String filename, int[][] tweaks) {
-		File official = new File(mdnieDir + filename);
-		File tmp = new File(mdnieDir + filename + tmpSuffix);
+	private boolean tweak(String source, String dest, int[][] tweaks, boolean ui) {
+		File src = new File(source);
+		File tmp = new File(dest+tmpSuffix);
 		GalacticNight.log("tweaking to "+tmp);
 		BufferedReader reader = null;
 		BufferedWriter writer = null;
 		try {
-			reader = new BufferedReader( new FileReader(official));
+			reader = new BufferedReader( new FileReader(src));
 			tmp.createNewFile();
 			writer = new BufferedWriter( new FileWriter(tmp));
 			
-			Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX][a-fA-F0-9]+(.*)");
+			Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX]([a-fA-F0-9]+)(.*)");
 			String line;
 			while(null != (line = reader.readLine())) {
 				Matcher m = pat.matcher(line);
 				if (m.find()) {
-					int hexIn = Integer.parseInt(m.group(1),16);
-					int tweakLine = checkTweak(tweaks, hexIn);
-					if (0 <= tweakLine) { 
-						writer.write(String.format("0x%04x,0x%04x%s\n",hexIn,
-								tweaks[tweakLine][1], m.group(2)));
+					int reg = Integer.parseInt(m.group(1),16);
+					int value = Integer.parseInt(m.group(2),16);
+					if (true /*reg <= 0xd3 || ui*/) {
+						writer.write(String.format("0x%04x,0x%04x%s\n",
+								reg,
+								lookupTweak(reg, value, tweaks),
+								m.group(3)));
 					}
-					else
-						writer.write(line+"\n");
 				}
 				else {
 					writer.write(line+"\n");
@@ -454,15 +439,15 @@ public class ScreenControl {
 			return false;
 		}
 		
-		return tmp.renameTo(official);
+		return tmp.renameTo(new File(dest));
 	}
 
-	private int checkTweak(int[][] tweaks, int hexIn) {
+	private int lookupTweak(int reg, int original, int[][] tweaks) {
 		for (int i=0; i<tweaks.length; i++) {
-			if (tweaks[i][0] == hexIn)
-				return i;
+			if (tweaks[i][0] == reg)
+				return tweaks[i][1];
 		}
-		return -1;
+		return original;
 	}
 
 	public void activate() {
@@ -520,14 +505,14 @@ public class ScreenControl {
 		return true;		
 	}
 	
-	private boolean checksum(int mode, int fType) {
-		File in = new File(backupDir + files[mode][fType]);
+	private String checksum(String filename) {
+		File in = new File(filename);
 		
 		try {
 			MessageDigest md = MessageDigest.getInstance("md5");
 			
 			if (!checksum(in, md)) {
-				return false;
+				return null;
 			}
 			
 			byte[] digest = md.digest();
@@ -535,29 +520,18 @@ public class ScreenControl {
 			for(int i=0; i<digest.length; i++) {
 				s += String.format("%02x", (int)(digest[i]&0xFF));
 			}
-			if ( s.compareTo(checksums[mode][fType]) != 0) {
-				GalacticNight.log("mismatch "+in+" "+s+" "+checksums[mode][fType]);
-			}
-			return 0 == s.compareTo(checksums[mode][fType]);
+			return s;
 		} catch (NoSuchAlgorithmException e) {
 			GalacticNight.log(""+e);
-			return false;
+			return null;
 		}
 	}
 	
 	public boolean checksum() {
-		for (int i=0; i<modes.length; i++) {
-			GalacticNight.log("checking "+modes[i]);
-			if (files[i][UI] != null && !checksum(i,UI)) {
-					GalacticNight.log("failed checksum at "+files[i][UI]);
-					return false;
-			}
-			if (!checksum(i,ADJ)) {
-				GalacticNight.log("failed checksum at "+files[i][ADJ]);
-				return false;
-			}
-		}
-		
-		return true;
+		String sum = checksum(mdnieDir+LINK_ADJ);
+		if (sum == null || 0 != sum.compareTo(LINK_ADJ_CHECKSUM))
+			return false;
+		sum = checksum(mdnieDir+LINK_UI);
+		return sum != null && 0 == sum.compareTo(LINK_UI_CHECKSUM);
 	}
 }
