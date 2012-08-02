@@ -31,6 +31,8 @@ public class ScreenControl {
 	static final int BW = 5;
 	static final int REVERSE = 6;
 	static final int SEPIA = 7;
+	static final int OUTDOOR = 8;
+	static final int NOBLUE = 9;
 	
 	static final String origSuffix = ".orig";
 	static final String[] srcUI = { "mdnie_tune_ui_dynamic_mode"+origSuffix,
@@ -48,6 +50,7 @@ public class ScreenControl {
 	static final String selectorFile = "/sys/devices/virtual/mdnieset_ui/switch_mdnieset_ui/mdnieset_user_select_file_cmd";
 	static final String mdnieDir = "/system/etc/";
 	static final String[] builtinModes = { "movie", "standard", "dynamic"};
+	static final String OUTDOOR_UI = "mdnie_tune_outdoor_mode"; 
 
 	static final int LINK_MODE = 0;
 	static final String LINK_UI = "mdnie_tune_ui_dynamic_mode";
@@ -77,6 +80,21 @@ public class ScreenControl {
 		  0x00ff,
 		  0x00ff,
 		  0x00ba
+	};
+	
+	static final int[] noblue = {
+		0x001D,
+		0x001d,
+		0xe2ff,
+		0xe2ff,
+		0x001D,
+		0xe2ff,
+		0x001d,
+		0xe2ff,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000
 	};
 	
 	static final int[] red
@@ -189,8 +207,8 @@ public class ScreenControl {
 				unlockPartition + " && " +
 				"mv "+mdnieDir+LINK_ADJ+" "+mdnieDir+LINK_ADJ+origSuffix +" && "+
 				"mv "+mdnieDir+LINK_UI+" "+mdnieDir+LINK_UI+origSuffix + " && "+
-				"ln -s \""+gnDir+SUBST_ADJ+"\" "+mdnieDir+LINK_ADJ + "; " +
-				"ln -s \""+gnDir+SUBST_UI+"\" "+mdnieDir+LINK_UI + " ; "+
+				"ln -s \""+gnDir+SUBST_ADJ+"\" "+mdnieDir+LINK_ADJ + " && " +
+				"ln -s \""+gnDir+SUBST_UI+"\" "+mdnieDir+LINK_UI + " && "+
 				lockPartition)) {
 			uninstall();
 			return false;
@@ -262,7 +280,7 @@ public class ScreenControl {
 				selectMode(STANDARD);
 			}
 			else {
-				if (!tweak(mdnieDir+STANDARD_UI, gnDir+SUBST_UI, new int[][] {{0x0001, 0x0040 }}, false)) {
+				if (!tweak(mdnieDir+STANDARD_UI, gnDir+SUBST_UI, new int[][] {{0x0001, 0x0040 }}, true)) {
 					copyFile(mdnieDir+STANDARD_UI+origSuffix,gnDir+SUBST_UI);
 					copyFile(mdnieDir+STANDARD_ADJ+origSuffix,gnDir+SUBST_ADJ);
 					selectMode(STANDARD);
@@ -286,6 +304,17 @@ public class ScreenControl {
 				selectMode(STANDARD);
 			}					
 		}
+		else if (setting == OUTDOOR) {
+			saveMode(STANDARD);
+			
+			if (copyFile(mdnieDir+srcAdj[STANDARD], gnDir+SUBST_ADJ) &&
+					copyFile(mdnieDir+OUTDOOR_UI, gnDir+SUBST_UI)) {
+				selectMode(DYNAMIC);
+			}
+			else {
+				set(STANDARD);
+			}
+		}
 	}
 	
 	private int[][] getTweak(int setting) {
@@ -297,6 +326,8 @@ public class ScreenControl {
 			return getTweak(bw);
 		else if (setting == SEPIA)
 			return getTweak(sepia);
+		else if (setting == NOBLUE)
+			return getTweak(noblue);
 		else if (setting == REVERSE)
 			return getReverseTweak(new File(gnDir + SUBST_ADJ));
 		else
@@ -386,57 +417,86 @@ public class ScreenControl {
 	}
 		
 	private boolean tweak(String source, String dest, int[][] tweaks, boolean ui) {
-		File src = new File(source);
 		File tmp = new File(dest+tmpSuffix);
-		GalacticNight.log("tweaking to "+tmp);
-		BufferedReader reader = null;
 		BufferedWriter writer = null;
-		try {
-			reader = new BufferedReader( new FileReader(src));
-			tmp.createNewFile();
-			writer = new BufferedWriter( new FileWriter(tmp));
-			
-			Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX]([a-fA-F0-9]+)(.*)");
-			String line;
-			while(null != (line = reader.readLine())) {
-				Matcher m = pat.matcher(line);
-				if (m.find()) {
-					int reg = Integer.parseInt(m.group(1),16);
-					int value = Integer.parseInt(m.group(2),16);
-					if (true /*reg <= 0xd3 || ui*/) {
-						writer.write(String.format("0x%04x,0x%04x%s\n",
-								reg,
-								lookupTweak(reg, value, tweaks),
-								m.group(3)));
+		
+//		if (!ui) {
+//			try {
+//				tmp.createNewFile();
+//				writer = new BufferedWriter( new FileWriter(tmp));
+//				
+//				for (int i = 0; i<tweaks.length; i++) {
+//					writer.write(String.format("0x%04x,0x%04x,\n", tweaks[i][0], tweaks[i][1]));
+//				}
+//				writer.close();
+//				writer = null;
+//			}
+//			catch (IOException e) {
+//
+//				if (writer != null) {
+//					try {
+//						writer.close();
+//					} catch (IOException e1) {
+//					}
+//				}
+//
+//				tmp.delete();
+//				GalacticNight.log("error writing tmp "+e);
+//				return false;
+//			}
+//		}
+//		else 
+		{
+			File src = new File(source);
+			GalacticNight.log("tweaking to "+tmp);
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader( new FileReader(src));
+				tmp.createNewFile();
+				writer = new BufferedWriter( new FileWriter(tmp));
+				
+				Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX]([a-fA-F0-9]+)(.*)");
+				String line;
+				while(null != (line = reader.readLine())) {
+					Matcher m = pat.matcher(line);
+					if (m.find()) {
+						int reg = Integer.parseInt(m.group(1),16);
+						int value = Integer.parseInt(m.group(2),16);
+						if (true /*reg <= 0xd3 || ui*/) {
+							writer.write(String.format("0x%04x,0x%04x%s\n",
+									reg,
+									lookupTweak(reg, value, tweaks),
+									m.group(3)));
+						}
+					}
+					else {
+						writer.write(line+"\n");
 					}
 				}
-				else {
-					writer.write(line+"\n");
+				writer.close();
+				writer = null;
+				reader.close();
+				reader = null;
+				
+			} catch (IOException e) {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e1) {
+					}
 				}
-			}
-			writer.close();
-			writer = null;
-			reader.close();
-			reader = null;
-			
-		} catch (IOException e) {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e1) {
+				
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (IOException e1) {
+					}
 				}
+				
+				tmp.delete();
+				GalacticNight.log("error writing tmp "+e);
+				return false;
 			}
-			
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e1) {
-				}
-			}
-			
-			tmp.delete();
-			GalacticNight.log("error writing tmp "+e);
-			return false;
 		}
 		
 		return tmp.renameTo(new File(dest));
