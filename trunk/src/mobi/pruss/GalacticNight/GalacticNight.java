@@ -88,7 +88,9 @@ public class GalacticNight extends Activity {
 		
 		if (installed) {
 			b.setText("Uninstall");
+			show(R.id.noblue);
 			show(R.id.normal);
+			show(R.id.outdoor);
 			show(R.id.red);
 			show(R.id.green);
 			show(R.id.bw);
@@ -99,7 +101,9 @@ public class GalacticNight extends Activity {
 		}
 		else {
 			b.setText("Install");
+			hide(R.id.noblue);
 			hide(R.id.normal);
+			hide(R.id.outdoor);
 			hide(R.id.red);
 			hide(R.id.green);
 			hide(R.id.bw);
@@ -124,8 +128,14 @@ public class GalacticNight extends Activity {
 		case R.id.normal:
 			screenControl.set(ScreenControl.STANDARD);
 			break;
+		case R.id.outdoor:
+			screenControl.set(ScreenControl.OUTDOOR);
+			break;
 		case R.id.red:
 			screenControl.set(ScreenControl.RED);
+			break;
+		case R.id.noblue:
+			screenControl.set(ScreenControl.NOBLUE);
 			break;
 		case R.id.green:
 			screenControl.set(ScreenControl.GREEN);
@@ -179,6 +189,7 @@ public class GalacticNight extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 		main = (LinearLayout)getLayoutInflater().inflate(R.layout.main, null);
 		setContentView(main);
 		

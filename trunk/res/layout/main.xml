@@ -16,12 +16,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="mode"
+            android:textSize="12sp"
             android:text="Dynamic" />
         <Button
             android:id="@+id/normal"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Standard" />
         <Button
@@ -29,8 +31,17 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Movie" />
+        <Button
+            android:id="@+id/outdoor"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:onClick="mode"
+            android:text="Outdoor" />
         </LinearLayout>
     
     <LinearLayout
@@ -43,6 +54,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Red" />
 
@@ -51,6 +63,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Green" />
         
@@ -59,6 +72,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Sepia" />
         
@@ -67,6 +81,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="BW" />
     </LinearLayout>
@@ -76,10 +91,19 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
     <Button
-            android:id="@+id/reverse"
-            android:layout_width="wrap_content"
+            android:id="@+id/noblue"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="12sp"
+            android:onClick="mode"
+            android:text="No blue" />
+        <Button
+            android:id="@+id/reverse"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Invert" />
     </LinearLayout>
@@ -95,6 +119,7 @@
             android:id="@+id/install"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="12sp"
             android:onClick="mode"
             android:text="Install" />
     </LinearLayout>
