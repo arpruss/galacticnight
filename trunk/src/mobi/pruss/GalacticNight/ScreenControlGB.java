@@ -304,4 +304,9 @@ public class ScreenControlGB extends ScreenControl {
 		sum = checksum(mdnieDir+LINK_UI);
 		return sum != null && 0 == sum.compareTo(LINK_UI_CHECKSUM);
 	}
+	
+	@Override 
+	public boolean supportsOutdoor() {
+		return true;
+	}
 }
