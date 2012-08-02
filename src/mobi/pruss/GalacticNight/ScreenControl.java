@@ -126,6 +126,20 @@ abstract public class ScreenControl {
 		0x4c69,
 		0xe2ff
 	};
+	private static final int[] negative = {
+		0xffff,
+		0xffff,
+		0x0000,
+		0x0000,
+		0xffff,
+		0x0000,
+		0xffff,
+		0x0000,
+		0xff00,
+		0xff00,
+		0xff00,
+		0xff00		
+	};
 	
 	protected static final int[][] ACTIVATE_SCR = {{0x0001, 0x0040 }};
 	
@@ -226,11 +240,8 @@ abstract public class ScreenControl {
 					}
 				}
 			}
-		} catch (NumberFormatException e) {
-			return null;
 		} catch (IOException e) {
-			GalacticNight.log("ReverseTweak "+e);
-			return null;
+			return getTweak(negative);
 		}
 		
 		return getTweak(c);
@@ -342,10 +353,16 @@ abstract public class ScreenControl {
 	
 	public void uninstall() {
 	}
+	
+	public boolean supportsOutdoor() {
+		return false;
+	}
 
 	public static ScreenControl getScreenControl(Context c) {
 		if (ScreenControlGB.detect())
 			return new ScreenControlGB(c);
+		else if (ScreenControlICS.detect())
+			return new ScreenControlICS(c);
 		else
 			return null;
 	}

@@ -85,6 +85,7 @@ public class GalacticNight extends Activity {
 		installed = value;
 		
 		Button b = (Button)findViewById(R.id.install);
+		
 		if (screenControl.isAlwaysInstalled())
 			b.setVisibility(View.GONE);
 		
@@ -114,6 +115,9 @@ public class GalacticNight extends Activity {
 			hide(R.id.dynamic);
 			hide(R.id.reverse);
 		}
+		
+		if (!screenControl.supportsOutdoor())
+			findViewById(R.id.outdoor).setVisibility(View.GONE);
 	}
 	
 	private void show(int id) {
