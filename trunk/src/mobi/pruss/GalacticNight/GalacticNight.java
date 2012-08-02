@@ -84,7 +84,9 @@ public class GalacticNight extends Activity {
 	private void setInstalled(boolean value) {
 		installed = value;
 		
-		Button b = (Button)findViewById(R.id.install);		
+		Button b = (Button)findViewById(R.id.install);
+		if (screenControl.isAlwaysInstalled())
+			b.setVisibility(View.GONE);
 		
 		if (installed) {
 			b.setText("Uninstall");
@@ -158,7 +160,7 @@ public class GalacticNight extends Activity {
 		case R.id.install:
 			if (installed) {
 				screenControl.uninstall();
-				if (screenControl.canUninstall()) {
+				if (screenControl.deemInstalled()) {
 					message("Failure uninstalling",
 							"This shouldn't have happened but it did: we were unable to "+
 							"uninstall GalacticNight control.  You can try again later, "+
@@ -193,8 +195,8 @@ public class GalacticNight extends Activity {
 		main = (LinearLayout)getLayoutInflater().inflate(R.layout.main, null);
 		setContentView(main);
 		
-		screenControl = new ScreenControl(this);
-		if (!screenControl.valid) {
+		screenControl = ScreenControl.getScreenControl(this);
+		if (screenControl == null || !screenControl.valid) {
 			message("Failure starting",
 					"It seems that your device is not rooted or not supported.  You may want to "+
 					"install catlog from Android Market, try installing GalacticNight again "+
@@ -203,7 +205,7 @@ public class GalacticNight extends Activity {
 			finish();
 		}
 		else {
-			setInstalled(screenControl.canUninstall());
+			setInstalled(screenControl.deemInstalled());
 		}
 	}
 	
