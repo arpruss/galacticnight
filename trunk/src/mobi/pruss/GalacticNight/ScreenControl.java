@@ -151,7 +151,7 @@ abstract public class ScreenControl {
 		File out = new File(selectorPath);
 		try {
 			FileOutputStream stream = new FileOutputStream(out);
-			stream.write((""+mode).getBytes());
+			stream.write((""+mode+"\n").getBytes());
 			stream.close();
 		} catch (FileNotFoundException e) {
 			GalacticNight.log("error "+selectorPath+" "+e);
@@ -359,11 +359,17 @@ abstract public class ScreenControl {
 	}
 
 	public static ScreenControl getScreenControl(Context c) {
-		if (ScreenControlGB.detect())
-			return new ScreenControlGB(c);
-		else if (ScreenControlICS.detect())
+		if (ScreenControlICS.detect()) {
+			GalacticNight.log("Detected ICS mdnie");
 			return new ScreenControlICS(c);
-		else
+		}
+		else if (ScreenControlGB.detect()) {
+			GalacticNight.log("Detected GB mdnie");
+			return new ScreenControlGB(c);
+		}
+		else {
+			GalacticNight.log("Failure in detecting");
 			return null;
+		}
 	}
 }

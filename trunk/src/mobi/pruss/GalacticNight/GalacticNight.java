@@ -49,36 +49,21 @@ public class GalacticNight extends Activity {
 	private boolean installed;
 	public static final boolean DEBUG = true;
 
-	private void message(String title, String msg) {
+	private void message(String title, String msg, final boolean finish) {
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+
+		Log.e("GalacticNight", title);
 
 		alertDialog.setTitle(title);
 		alertDialog.setMessage(msg);
 		alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, 
 				"OK", 
 				new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {} });
+			public void onClick(DialogInterface dialog, int which) {if (finish) finish();} });
 		alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			public void onCancel(DialogInterface dialog) {} });
+			public void onCancel(DialogInterface dialog) {if (finish) finish();} });
 		alertDialog.show();
 
-	}
-	
-
-	private void fatalError(String title, String msg) {
-		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-
-		Log.e("GalacticNight fatalError", title);
-
-		alertDialog.setTitle(title);
-		alertDialog.setMessage(msg);
-		alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, 
-				"OK", 
-				new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {finish();} });
-		alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			public void onCancel(DialogInterface dialog) {finish();} });
-		alertDialog.show();		
 	}
 	
 	private void setInstalled(boolean value) {
@@ -169,7 +154,8 @@ public class GalacticNight extends Activity {
 							"This shouldn't have happened but it did: we were unable to "+
 							"uninstall GalacticNight control.  You can try again later, "+
 							"or you can attempt to restore the /system/etc/tune_ui_dynamic_mode "+
-							"and /system/etc/tune_ui_dynamic_mode files from their *.orig copies.");					
+							"and /system/etc/tune_ui_dynamic_mode files from their *.orig copies.",
+							true);					
 				}
 				else {
 					setInstalled(false);
@@ -181,7 +167,8 @@ public class GalacticNight extends Activity {
 							"It seems that your device is not supported.  You may want to "+
 							"install catlog from Android Market, try installing GalacticNight again "+
 							"and if it fails again, go immediately to catlog and send your log and device information "+
-							"to arpruss@gmail.com");
+							"to arpruss@gmail.com",
+							true);
 				}
 				else {
 					setInstalled(true);
@@ -205,8 +192,7 @@ public class GalacticNight extends Activity {
 					"It seems that your device is not rooted or not supported.  You may want to "+
 					"install catlog from Android Market, try installing GalacticNight again "+
 					"and if it fails again, go immediately to catlog and send your log and device information "+
-					"to arpruss@gmail.com");
-			finish();
+					"to arpruss@gmail.com", true);
 		}
 		else {
 			setInstalled(screenControl.deemInstalled());
