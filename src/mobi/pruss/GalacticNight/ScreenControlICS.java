@@ -8,7 +8,7 @@ import java.io.IOException;
 import android.content.Context;
 
 public class ScreenControlICS extends ScreenControl {
-	public static final String SELECTOR = "/sys/class/mdnie/mode";
+	public static final String SELECTOR = "/sys/class/mdnie/scenario";
 	public static final String TUNING_CONTROL = "/sys/class/mdnie/tunning"; // [sic]
 	private static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
 	
@@ -25,10 +25,14 @@ public class ScreenControlICS extends ScreenControl {
 		if (Root.runOne("chmod 666 "+selectorPath+" "+TUNING_CONTROL)) {
 			valid = true;
 		}
+		else {
+			GalacticNight.log("Failing unlocking");
+		}
 	}
 	
 	public static boolean detect() {
-		return (new File(SELECTOR).exists());
+		return (new File(SELECTOR).exists()) &&
+		   (new File(TUNING_CONTROL).exists());
 	}
 	
 	@Override
@@ -58,8 +62,8 @@ public class ScreenControlICS extends ScreenControl {
 			writeTweak(tweak, true);
 		}
 		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC) {
-			saveMode(setting);
-			selectMode(setting);
+//			saveMode(setting);			
+			selectMode(setting == MOVIE ? 3 : setting);
 		}
 	}
 	
@@ -68,7 +72,7 @@ public class ScreenControlICS extends ScreenControl {
 		try {
 			writer = new BufferedWriter( new FileWriter(new File(workingColorPath)));
 			for (int i=0; i<tweak.length; i++) {
-				writer.write(String.format("0x%04x,0x%04x%s\n",tweak[i][0],tweak[i][1]));
+				writer.write(String.format("0x%04x,0x%04x,\n",tweak[i][0],tweak[i][1]));
 			}
 			if(scr)
 				writer.write("0x0001,0x0040,\n");
@@ -89,6 +93,7 @@ public class ScreenControlICS extends ScreenControl {
 		}
 		
 		if (tuningControlWrite("1") && tuningControlWrite(SUBST)) {
+			tuningControlWrite("0");
 			return true;
 		}
 		else {
@@ -102,7 +107,7 @@ public class ScreenControlICS extends ScreenControl {
 			
 		try {
 			w = new FileWriter(new File(TUNING_CONTROL));
-			w.write(s);
+			w.write(s+"\n");
 			w.close();
 		} catch (IOException e) {
 			if (w != null) {
