@@ -1,7 +1,6 @@
 package mobi.pruss.GalacticNight;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -157,7 +156,7 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 		
 		if (tweak != null) {
 			GalacticNight.log("writing tweak");
-			writeTweak(prefix, tweak, suffix);
+			writeTweakICS(prefix, tweak, suffix);
 		}
 		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC
 				|| setting == NATURAL) {

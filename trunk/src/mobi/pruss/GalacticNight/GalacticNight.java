@@ -226,6 +226,8 @@ public class GalacticNight extends Activity {
 		super.onResume();
 		
 		resize();
+		if (screenControl != null)
+			screenControl.updateService();
 		
 		GalacticNight.log("resume");
 	}	
