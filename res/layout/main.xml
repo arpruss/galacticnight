@@ -27,6 +27,14 @@
             android:onClick="mode"
             android:text="Standard" />
         <Button
+            android:id="@+id/natural"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:onClick="mode"
+            android:text="Natural" />
+        <Button
             android:id="@+id/movie"
             android:layout_width="0dip"
             android:layout_height="wrap_content"

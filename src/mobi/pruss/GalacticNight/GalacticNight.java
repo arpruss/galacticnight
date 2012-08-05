@@ -69,11 +69,11 @@ public class GalacticNight extends Activity {
 	private void setInstalled(boolean value) {
 		installed = value;
 		
-		Button b = (Button)findViewById(R.id.install);
+		Button b = (Button)findViewById(R.id.install); 
 		
 		if (screenControl.isAlwaysInstalled())
 			b.setVisibility(View.GONE);
-		
+
 		if (installed) {
 			b.setText("Uninstall");
 			show(R.id.noblue);
@@ -86,6 +86,7 @@ public class GalacticNight extends Activity {
 			show(R.id.movie);
 			show(R.id.dynamic);
 			show(R.id.reverse);
+			show(R.id.natural);
 		}
 		else {
 			b.setText("Install");
@@ -99,10 +100,14 @@ public class GalacticNight extends Activity {
 			hide(R.id.movie);
 			hide(R.id.dynamic);
 			hide(R.id.reverse);
+			hide(R.id.natural);
 		}
 		
 		if (!screenControl.supportsOutdoor())
 			findViewById(R.id.outdoor).setVisibility(View.GONE);
+		if (!screenControl.supportNatural())
+			findViewById(R.id.natural).setVisibility(View.GONE);
+		
 	}
 	
 	private void show(int id) {
@@ -118,6 +123,9 @@ public class GalacticNight extends Activity {
 		switch(v.getId()) {
 		case R.id.normal:
 			screenControl.set(ScreenControl.STANDARD);
+			break;
+		case R.id.natural:
+			screenControl.set(ScreenControl.NATURAL);
 			break;
 		case R.id.outdoor:
 			screenControl.set(ScreenControl.OUTDOOR);

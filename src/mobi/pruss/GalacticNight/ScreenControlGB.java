@@ -265,14 +265,6 @@ public class ScreenControlGB extends ScreenControl {
 		return tmp.renameTo(new File(dest));
 	}
 
-	private int lookupTweak(int reg, int original, int[][] tweaks) {
-		for (int i=0; i<tweaks.length; i++) {
-			if (tweaks[i][0] == reg)
-				return tweaks[i][1];
-		}
-		return original;
-	}
-
 	public void activate() {
 		String value;
 		
