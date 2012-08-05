@@ -75,7 +75,10 @@ public class ScreenControlGB extends ScreenControl {
 		
 	}
 	
-	public static boolean detect() {
+	public static boolean detect(String cpu) {
+		if (!cpu.endsWith("210"))
+			return false;
+		
 		return (new File(SELECTOR).exists());
 	}
 	
