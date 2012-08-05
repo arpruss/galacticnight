@@ -31,11 +31,15 @@ abstract public class ScreenControl {
 	public static final int SEPIA = 7;
 	public static final int OUTDOOR = 8;
 	public static final int NOBLUE = 9;
+	public static final int NATURAL = 10;
+	
+	protected int SCR_COUNT = 12;
 
 	protected Context context;
 	protected String gnDir;
 	protected String selectorPath;
 	protected String workingColorPath;
+	protected boolean exynos4212;
 
 	protected static final int[] sepia 
 	  = { 0x0000, //r
@@ -126,7 +130,7 @@ abstract public class ScreenControl {
 		0x4c69,
 		0xe2ff
 	};
-	private static final int[] negative = {
+	protected static final int[] negative = {
 		0xffff,
 		0xffff,
 		0x0000,
@@ -207,8 +211,8 @@ abstract public class ScreenControl {
 		return pos / 8 * 8 + (7 - (pos % 8));
 	}
 	
-	private int[][] getReverseTweak(File f) {
-		int[]c = new int[12];		
+	protected int[][] getReverseTweak(File f) {
+		int[]c = new int[SCR_COUNT];		
 
 		try {
 			BufferedReader reader = new BufferedReader( new FileReader(f));
@@ -219,7 +223,7 @@ abstract public class ScreenControl {
 				if (m.find()) {
 					int register = Integer.parseInt(m.group(1),16);
 					int value = Integer.parseInt(m.group(2),16);
-					
+
 					if (0xC8 <= register && register <= 0xD3) {
 						int pos = getInvertedPosition(2*(register-0xC8));
 						GalacticNight.log(""+(register-0xc8)+" -> "+pos+" "+String.format("%04x", value));
@@ -247,7 +251,7 @@ abstract public class ScreenControl {
 		return getTweak(c);
 	}
 
-	private int[][] getTweak(int[] c) {
+	protected int[][] getTweak(int[] c) {
 		int[][] tweak = new int[c.length][2];
 		for (int i = 0; i < c.length ; i++) {
 			tweak[i][0] = 0xc8 + i;
@@ -359,9 +363,13 @@ abstract public class ScreenControl {
 	}
 
 	public static ScreenControl getScreenControl(Context c) {
-		if (ScreenControlICS.detect()) {
-			GalacticNight.log("Detected ICS mdnie");
-			return new ScreenControlICS(c);
+		if (ScreenControlICS4210.detect()) {
+			GalacticNight.log("Detected ICS 4210 mdnie");
+			return new ScreenControlICS4210(c);
+		}
+		else if (ScreenControlICS4212.detect()) {
+			GalacticNight.log("Detected ICS 4212 mdnie");
+			return new ScreenControlICS4212(c);
 		}
 		else if (ScreenControlGB.detect()) {
 			GalacticNight.log("Detected GB mdnie");
@@ -371,5 +379,17 @@ abstract public class ScreenControl {
 			GalacticNight.log("Failure in detecting");
 			return null;
 		}
+	}
+
+	protected int lookupTweak(int reg, int original, int[][] tweaks) {
+		for (int i=0; i<tweaks.length; i++) {
+			if (tweaks[i][0] == reg)
+				return tweaks[i][1];
+		}
+		return original;
+	}
+
+	public boolean supportNatural() {
+		return false;
 	}
 }

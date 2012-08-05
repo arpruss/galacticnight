@@ -8,10 +8,17 @@ import java.io.IOException;
 import android.content.Context;
 
 public class ScreenControlICS extends ScreenControl {
-	public static final String SELECTOR = "/sys/class/mdnie/scenario";
-	public static final String TUNING_CONTROL = "/sys/class/mdnie/tunning"; // [sic]
-	private static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
+	public static final boolean FORCE_S3 = false; // debug
+	public static final boolean FORCE_ICS_S2 = false; // debug
+	protected static final String SELECTOR = "/sys/class/mdnie/mdnie/mode";
+	protected static final String TUNING_CONTROL = "/sys/class/mdnie/mdnie/tunning"; // [sic]
 	
+//	public static final String SELECTOR = "/sdcard/GalacticNight/test_mode";
+//	public static final String TUNING_CONTROL = "/sdcard/GalacticNight/test_tunning";
+	
+	protected static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
+	protected Device device;
+
 	public ScreenControlICS(Context context) {
 		super(context);
 
@@ -20,7 +27,8 @@ public class ScreenControlICS extends ScreenControl {
 		gnDir = "/sdcard/mdnie/";
 		workingColorPath = gnDir + SUBST;
 		
-		valid = false;
+		valid = false;		
+		device = new Device();
 		
 		if (Root.runOne("chmod 666 "+selectorPath+" "+TUNING_CONTROL)) {
 			valid = true;
@@ -30,7 +38,9 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
-	public static boolean detect() {
+	public static boolean detectICS() {
+		if (FORCE_S3)
+			return true;
 		return (new File(SELECTOR).exists()) &&
 		   (new File(TUNING_CONTROL).exists());
 	}
@@ -54,55 +64,8 @@ public class ScreenControlICS extends ScreenControl {
 	public void uninstall() {
 	}
 	
-	@Override
-	public void set(int setting) {
-		int[][] tweak = getTweak(setting);
-		
-		if (tweak != null) {
-			writeTweak(tweak, true);
-		}
-		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC) {
-//			saveMode(setting);			
-			selectMode(setting == MOVIE ? 3 : setting);
-		}
-	}
-	
-	private boolean writeTweak(int[][] tweak, boolean scr) {
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter( new FileWriter(new File(workingColorPath)));
-			for (int i=0; i<tweak.length; i++) {
-				writer.write(String.format("0x%04x,0x%04x,\n",tweak[i][0],tweak[i][1]));
-			}
-			if(scr)
-				writer.write("0x0001,0x0040,\n");
-			else
-				writer.write("0x0001,0x0000,\n");
-			writer.close();
-		} catch (IOException e) {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e1) {
-				}
-			}
-			(new File(workingColorPath)).delete();
-			tuningControlWrite("0"); // optional?
-			GalacticNight.log("error writing to "+workingColorPath+": "+e);
-			return false;
-		}
-		
-		if (tuningControlWrite("1") && tuningControlWrite(SUBST)) {
-			tuningControlWrite("0");
-			return true;
-		}
-		else {
-			tuningControlWrite("0");
-			return false;
-		}
-	}
-	
-	private boolean tuningControlWrite(String s) {
+
+	protected boolean tuningControlWrite(String s) {
 		FileWriter w = null; 
 			
 		try {
@@ -122,6 +85,50 @@ public class ScreenControlICS extends ScreenControl {
 		return true;
 	}
 	
+	protected boolean writeTweak(int[][] a, int[][] b, int[][] c) {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter( new FileWriter(new File(workingColorPath)));
+
+			if (a != null)
+				for (int i=0; i<a.length; i++) {
+					writer.write(String.format("0x%04x,0x%04x,\n",a[i][0],a[i][1]));
+				}
+
+			if (b != null)
+				for (int i=0; i<b.length; i++) {
+					writer.write(String.format("0x%04x,0x%04x,\n",b[i][0],b[i][1]));
+				}
+
+			if (c != null)
+				for (int i=0; i<c.length; i++) {
+					writer.write(String.format("0x%04x,0x%04x,\n",c[i][0],c[i][1]));
+				}
+
+			
+			writer.close();
+		} catch (IOException e) {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e1) {
+				}
+			}
+			(new File(workingColorPath)).delete();
+			tuningControlWrite("0");
+			GalacticNight.log("error writing to "+workingColorPath+": "+e);
+			return false;
+		}
+		
+		if (tuningControlWrite("1") && tuningControlWrite(SUBST)) {
+//			tuningControlWrite("0");
+			return true;
+		}
+		else {
+			tuningControlWrite("0");
+			return false;
+		}
+	}
 	
 	@Override 
 	public boolean supportsOutdoor() {
