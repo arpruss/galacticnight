@@ -19,10 +19,14 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 		exynos4212 = true;
 	}
 	
-	static public boolean detect() {
+	static public boolean detect(String cpu) {
 		if (!FORCE_ICS_S2 && FORCE_S3)
 			return true;
-		return detectICS() && (new Device().is(Device.GALAXYS3)); 
+
+		if (!cpu.endsWith("12"))
+			return false;
+		
+		return detectICS(); // && (new Device().is(Device.GALAXYS3)); 
 	}
 
 	int[][] prefix = {

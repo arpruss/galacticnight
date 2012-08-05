@@ -15,9 +15,12 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 		super(context);
 	}
 	
-	static public boolean detect() {
+	static public boolean detect(String cpu) {
 		if (FORCE_ICS_S2 && !FORCE_S3)
 			return true;
+		
+		if (!cpu.endsWith("210"))
+			return false;
 		
 		return detectICS() && !(new Device().is(Device.GALAXYS3)); 
 	}

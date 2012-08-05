@@ -363,15 +363,16 @@ abstract public class ScreenControl {
 	}
 
 	public static ScreenControl getScreenControl(Context c) {
-		if (ScreenControlICS4210.detect()) {
+		String cpu = getCPU();
+		if (ScreenControlICS4210.detect(cpu)) {
 			GalacticNight.log("Detected ICS 4210 mdnie");
 			return new ScreenControlICS4210(c);
 		}
-		else if (ScreenControlICS4212.detect()) {
+		else if (ScreenControlICS4212.detect(cpu)) {
 			GalacticNight.log("Detected ICS 4212 mdnie");
 			return new ScreenControlICS4212(c);
 		}
-		else if (ScreenControlGB.detect()) {
+		else if (ScreenControlGB.detect(cpu)) {
 			GalacticNight.log("Detected GB mdnie");
 			return new ScreenControlGB(c);
 		}
@@ -379,6 +380,25 @@ abstract public class ScreenControl {
 			GalacticNight.log("Failure in detecting");
 			return null;
 		}
+	}
+	
+	static private String getCPU() {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(new File("/proc/cpuinfo")));
+
+			String line;
+			Pattern pat = Pattern.compile("^Hardware\\s*:\\s*(.*)");
+			while(null != (line = reader.readLine())) {
+				Matcher m = pat.matcher(line);
+				if (m.find()) {
+					GalacticNight.log("CPU: "+m.group(1));
+					return m.group(1);
+				}
+			}
+		} catch (IOException e) {
+		}
+		
+		return null;
 	}
 
 	protected int lookupTweak(int reg, int original, int[][] tweaks) {
