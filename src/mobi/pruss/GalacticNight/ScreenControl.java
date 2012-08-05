@@ -412,4 +412,7 @@ abstract public class ScreenControl {
 	public boolean supportNatural() {
 		return false;
 	}
+
+	public void updateService() {
+	}
 }

@@ -30,7 +30,7 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 		int[][] tweak = getTweak(setting);
 		
 		if (tweak != null) {
-			writeTweak(activater, tweak, null);
+			writeTweakICS(activater, tweak, null);
 		}
 		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC) {
 			tuningControlWrite("0");
