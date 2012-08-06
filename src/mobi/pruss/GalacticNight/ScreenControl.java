@@ -24,23 +24,23 @@ abstract public class ScreenControl {
 	public static final int DYNAMIC = 0;
 	public static final int STANDARD = 1;
 	public static final int MOVIE = 2;
-	public static final int RED = 3;
-	public static final int GREEN = 4;
-	public static final int BW = 5;
-	public static final int REVERSE = 6;
-	public static final int SEPIA = 7;
-	public static final int OUTDOOR = 8;
-	public static final int NOBLUE = 9;
-	public static final int NATURAL = 10;
+	public static final int NATURAL = 3;
+	public static final int RED = 4;
+	public static final int GREEN = 5;
+	public static final int BW = 6;
+	public static final int REVERSE = 7;
+	public static final int SEPIA = 8;
+	public static final int OUTDOOR = 9;
+	public static final int NOBLUE = 10;
+	public static final int BLUE = 11;
+	public static final int NUM_MODES = 12;
 	
-	protected int SCR_COUNT = 12;
-
-	protected Context context;
-	protected String gnDir;
-	protected String selectorPath;
-	protected String workingColorPath;
-	protected boolean exynos4212;
-
+	public static final int[] ids = {
+		R.id.dynamic, R.id.normal, R.id.movie, R.id.natural, R.id.red,
+		R.id.green, R.id.bw, R.id.reverse, R.id.sepia, R.id.outdoor,
+		R.id.noblue, R.id.blue 
+	};
+	
 	protected static final int[] sepia 
 	  = { 0x0000, //r
 		  0x0000,
@@ -145,6 +145,21 @@ abstract public class ScreenControl {
 		0xff00		
 	};
 	
+	public static int[][] colors = {
+		null, null, null, null,
+		red, green, bw,
+		null, sepia, null,
+		noblue, blue
+	};
+	
+	protected int SCR_COUNT = 12;
+
+	protected Context context;
+	protected String gnDir;
+	protected String selectorPath;
+	protected String workingColorPath;
+	protected boolean exynos4212;
+
 	protected static final int[][] ACTIVATE_SCR = {{0x0001, 0x0040 }};
 	
 	public ScreenControl(Context context) {
@@ -191,16 +206,8 @@ abstract public class ScreenControl {
 	}
 	
 	protected int[][] getTweak(int setting) {
-		if (setting == RED)
-			return getTweak(red);
-		else if (setting == GREEN)
-			return getTweak(green);
-		else if (setting == BW)
-			return getTweak(bw);
-		else if (setting == SEPIA)
-			return getTweak(sepia);
-		else if (setting == NOBLUE)
-			return getTweak(noblue);
+		if (colors[setting] != null)
+			return getTweak(colors[setting]);
 		else if (setting == REVERSE)
 			return getReverseTweak(new File(workingColorPath));
 		else
