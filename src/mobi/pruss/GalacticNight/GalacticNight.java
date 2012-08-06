@@ -1,20 +1,30 @@
 package mobi.pruss.GalacticNight;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import mobi.pruss.GalacticNight.R;
 
 public class GalacticNight extends Activity {
 	private ScreenControl screenControl;
 	private LinearLayout main;
 	private boolean installed;
+	private SharedPreferences options;
 	public static final boolean DEBUG = true;
 
 	private void message(String title, String msg, final boolean finish) {
@@ -37,6 +47,8 @@ public class GalacticNight extends Activity {
 	private void setInstalled(boolean value) {
 		installed = value;
 		
+		updateButtons();
+		
 		Button install = (Button)findViewById(R.id.install); 
 		
 		if (screenControl.isAlwaysInstalled())
@@ -49,13 +61,7 @@ public class GalacticNight extends Activity {
 		else {
 			install.setText("Install");
 			hide(R.id.color_modes);
-		}
-		
-		if (!screenControl.supportsOutdoor())
-			findViewById(R.id.outdoor).setVisibility(View.GONE);
-		if (!screenControl.supportNatural())
-			findViewById(R.id.natural).setVisibility(View.GONE);
-		
+		}		
 	}
 	
 	private void show(int id) {
@@ -114,6 +120,8 @@ public class GalacticNight extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		options = PreferenceManager.getDefaultSharedPreferences(this);
+
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 		main = (LinearLayout)getLayoutInflater().inflate(R.layout.main, null);
 		setContentView(main);
@@ -144,21 +152,76 @@ public class GalacticNight extends Activity {
 		ll.setLayoutParams(lp);
     }
 
+    public void updateButtons() {
+    	if (hasMenuKey()) 
+    		findViewById(R.id.menu).setVisibility(View.GONE);
+    	else
+    		findViewById(R.id.menu).setVisibility(View.VISIBLE);
+    	
+    	for (int i=0; i<ScreenControl.NUM_MODES; i++) {
+    		if (options.getBoolean(ScreenControl.prefs[i], true)) {
+    			findViewById(ScreenControl.ids[i]).setVisibility(View.VISIBLE);
+    		}
+    		else {
+    			findViewById(ScreenControl.ids[i]).setVisibility(View.GONE);
+    		}
+    	}
+    	
+		if (!screenControl.supportsOutdoor())
+			findViewById(R.id.outdoor).setVisibility(View.GONE);
+		if (!screenControl.supportNatural())
+			findViewById(R.id.natural).setVisibility(View.GONE);		
+    }
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		
 		resize();
+		
+		updateButtons();
+		
 		if (screenControl != null)
 			screenControl.updateService();
 		
 		GalacticNight.log("resume");
 	}	
+
+	public void menuButton(View v) {
+		openOptionsMenu();
+	}
+	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case R.id.options:
+			Intent i = new Intent(this, Options.class);
+			startActivity(i);
+			return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		
+		return true;
+	}
 	
 	static public void log(String s) {
 		if (DEBUG) {
 			Log.v("GalacticNight", s);
 		}
+	}
+
+	@SuppressLint("NewApi")
+	public boolean hasMenuKey() {
+		if (Build.VERSION.SDK_INT < 14)
+			return true;
+		return ViewConfiguration.get(this).hasPermanentMenuKey();
+		
 	}
 }

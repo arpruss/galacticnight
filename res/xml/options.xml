@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceCategory
+    android:title="Visible buttons">
+<CheckBoxPreference 
+    android:title="Dynamic"
+    android:defaultValue="true"
+    android:key="dynamic"
+/>      
+<CheckBoxPreference 
+    android:title="Standard"
+    android:defaultValue="true"
+    android:key="standard"
+/>      
+<CheckBoxPreference 
+    android:title="Natural [S3 only]"
+    android:defaultValue="true"
+    android:key="natural"
+/>      
+<CheckBoxPreference 
+    android:title="Movie"
+    android:defaultValue="true"
+    android:key="movie"
+/>      
+<CheckBoxPreference 
+    android:title="Outdoor [GB only]"
+    android:defaultValue="true"
+    android:key="outdoor"
+/>      
+<CheckBoxPreference 
+    android:title="Red"
+    android:defaultValue="true"
+    android:key="red"
+/>      
+<CheckBoxPreference 
+    android:title="Green"
+    android:defaultValue="true"
+    android:key="green"
+/>      
+<CheckBoxPreference 
+    android:title="Blue"
+    android:defaultValue="true"
+    android:key="blue"
+/>      
+<CheckBoxPreference 
+    android:title="Sepia"
+    android:defaultValue="true"
+    android:key="sepia"
+/>      
+<CheckBoxPreference 
+    android:title="No blue"
+    android:defaultValue="true"
+    android:key="noBlue"
+/>      
+<CheckBoxPreference 
+    android:title="BW"
+    android:defaultValue="true"
+    android:key="bw"
+/>      
+<CheckBoxPreference 
+    android:title="Invert"
+    android:defaultValue="true"
+    android:key="invert"
+/>      
+</PreferenceCategory>    
+</PreferenceScreen>
