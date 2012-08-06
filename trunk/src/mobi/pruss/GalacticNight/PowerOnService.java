@@ -69,9 +69,13 @@ public class PowerOnService extends Service {
 		public void onReceive(Context context, Intent intent) {
 			String data = ScreenControlICS.tuningControlRead();
 			GalacticNight.log("Screen on service, tunning="+data);
-			if (data != null && data.length() > 0) {
-				GalacticNight.log("rewriting tuningControl");
-				ScreenControlICS.tuningControlWrite(context, data, false);
+			if (data != null && data.startsWith("/sdcard/mdnie/")) {
+				GalacticNight.log("rewriting tuningControl");				
+				try {
+					Thread.sleep(5000,0);
+				} catch (Exception e) {
+				}
+				ScreenControlICS.tuningControlWrite(context, data.substring(14), false);
 			}
 			else {
 				GalacticNight.log("no tuningControl");
