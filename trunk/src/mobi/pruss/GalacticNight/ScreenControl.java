@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.provider.Settings.SettingNotFoundException;
 
@@ -39,6 +40,10 @@ abstract public class ScreenControl {
 		R.id.dynamic, R.id.normal, R.id.movie, R.id.natural, R.id.red,
 		R.id.green, R.id.bw, R.id.reverse, R.id.sepia, R.id.outdoor,
 		R.id.noblue, R.id.blue 
+	};
+	public static final String[] prefs = {
+		"dynamic", "standard", "movie", "natural", "red",
+		"green", "bw", "invert", "sepia", "outdoor", "noBlue", "blue"
 	};
 	
 	protected static final int[] sepia 
@@ -422,4 +427,5 @@ abstract public class ScreenControl {
 
 	public void updateService() {
 	}
+
 }

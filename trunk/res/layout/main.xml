@@ -6,130 +6,158 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/color_modes" 
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-    <Button
-            android:id="@+id/dynamic"
-            android:layout_width="0dip"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="mode"
-            android:textSize="12sp"
-            android:text="Dynamic" />
-        <Button
-            android:id="@+id/normal"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Standard" />
-        <Button
-            android:id="@+id/natural"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Natural" />
-        <Button
-            android:id="@+id/movie"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Movie" />
-        <Button
-            android:id="@+id/outdoor"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Outdoor" />
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/dynamic"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Dynamic"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/normal"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Standard"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/natural"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Natural"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/movie"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Movie"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/outdoor"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Outdoor"
+                android:textSize="12sp" />
         </LinearLayout>
-    
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/red"
-            android:layout_width="0dip"
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Red" />
+            android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/green"
-            android:layout_width="0dip"
+            <Button
+                android:id="@+id/red"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Red"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/green"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Green"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/blue"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Blue"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/sepia"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Sepia"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Green" />
-        
-        <Button
-            android:id="@+id/sepia"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Sepia" />
-        
-        <Button
-            android:id="@+id/bw"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="BW" />
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/noblue"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="No blue"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/bw"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="BW"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/reverse"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:onClick="mode"
+                android:text="Invert"
+                android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-    <Button
-            android:id="@+id/noblue"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="No blue" />
-        <Button
-            android:id="@+id/reverse"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Invert" />
-    </LinearLayout>
         
-    
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:orientation="horizontal" >
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/install"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:onClick="mode"
-            android:text="Install" />
-    </LinearLayout>
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="openMenu"
+                android:text="More..."
+                android:textSize="12sp" />
+            <Button
+                android:id="@+id/install"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="mode"
+                android:text="Install"
+                android:textSize="12sp" />
+        </LinearLayout>
 
 </LinearLayout>
