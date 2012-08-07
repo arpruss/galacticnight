@@ -71,10 +71,10 @@ public class PowerOnService extends Service {
 			GalacticNight.log("Screen on service, tunning="+data);
 			if (data != null && data.startsWith("/sdcard/mdnie/")) {
 				GalacticNight.log("rewriting tuningControl");				
-				try {
-					Thread.sleep(5000,0);
-				} catch (Exception e) {
-				}
+//				try {
+//					Thread.sleep(5000,0);
+//				} catch (Exception e) {
+//				}
 				ScreenControlICS.tuningControlWrite(context, data.substring(14), false);
 			}
 			else {

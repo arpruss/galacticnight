@@ -19,8 +19,8 @@ public class ScreenControlICS extends ScreenControl {
 	protected static final String SELECTOR = "/sys/class/mdnie/mdnie/mode";
 	protected static final String TUNING_CONTROL = "/sys/class/mdnie/mdnie/tunning"; // [sic]
 	
-//	public static final String SELECTOR = "/sdcard/GalacticNight/test_mode";
-//	public static final String TUNING_CONTROL = "/sdcard/GalacticNight/test_tunning";
+//	public static final String SELECTOR = "/sdcard/mdnie/test_mode";
+//	public static final String TUNING_CONTROL = "/sdcard/mdnie/test_tunning";
 	
 	protected static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
 	protected Device device;
@@ -87,7 +87,7 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 
-	public static boolean tuningControlWrite(Context context, String s, boolean handleService) {
+	public static boolean tuningControlWrite(Context context, String s, boolean startServiceIfNeeded) {
 		FileWriter w = null;
 		boolean success = false;
 			
@@ -106,7 +106,7 @@ public class ScreenControlICS extends ScreenControl {
 			}
 		}
 		
-		if (handleService) {
+		if (startServiceIfNeeded) {
 			if (s.equals("0") || !success) {
 				GalacticNight.log("stopping service");
 				context.stopService(new Intent(context, PowerOnService.class));
