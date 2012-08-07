@@ -136,6 +136,7 @@ public class GalacticNight extends Activity {
 		}
 		else {
 			setInstalled(screenControl.deemInstalled());
+			screenControl.updateService();			
 		}
 	}
 	
@@ -180,9 +181,6 @@ public class GalacticNight extends Activity {
 		resize();
 		
 		updateButtons();
-		
-		if (screenControl != null)
-			screenControl.updateService();
 		
 		GalacticNight.log("resume");
 	}	
