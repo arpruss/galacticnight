@@ -8,9 +8,10 @@
      <uses-permission android:name="android.permission.WRITE_SETTINGS"/>  
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>    
     <application android:label="Galactic Night"
+            android:icon="@drawable/icon"
     >
         <activity android:name=".GalacticNight"
-            android:theme="@android:style/Theme.Dialog"
+            android:theme="@style/Theme.MyDialog"
                   android:label="Galactic Night"
                   android:launchMode="singleTask">
             <intent-filter>
