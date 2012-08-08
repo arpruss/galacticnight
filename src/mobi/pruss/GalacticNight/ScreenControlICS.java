@@ -16,10 +16,12 @@ public class ScreenControlICS extends ScreenControl {
 	public static final boolean FORCE_S3 = false; // debug
 	public static final boolean FORCE_ICS_S2 = false; // debug
 	
-	protected static final String SELECTOR = "/sys/class/mdnie/mdnie/mode";
+	protected static final String MODE = "/sys/class/mdnie/mdnie/mode";
+	protected static final String OUTDOOR = "/sys/class/mdnie/mdnie/outdoor";
 	protected static final String TUNING_CONTROL = "/sys/class/mdnie/mdnie/tunning"; // [sic]
 	
-//	public static final String SELECTOR = "/sdcard/mdnie/test_mode";
+//	public static final String MODE = "/sdcard/mdnie/test_mode";
+//	protected static final String OUTDOOR = "/sdcard/mdnie/test_outdoor";
 //	public static final String TUNING_CONTROL = "/sdcard/mdnie/test_tunning";
 	
 	protected static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
@@ -28,7 +30,7 @@ public class ScreenControlICS extends ScreenControl {
 	public ScreenControlICS(Context context) {
 		super(context);
 
-		selectorPath = SELECTOR; 
+		selectorPath = MODE; 
 		(new File("/sdcard/mdnie")).mkdir();
 		gnDir = "/sdcard/mdnie/";
 		workingColorPath = gnDir + SUBST;
@@ -36,7 +38,7 @@ public class ScreenControlICS extends ScreenControl {
 		valid = false;		
 		device = new Device();
 		
-		if (Root.runOne("chmod 666 "+selectorPath+" "+TUNING_CONTROL)) {
+		if (Root.runOne("chmod 666 "+selectorPath+" "+TUNING_CONTROL+" "+OUTDOOR)) {
 			valid = true;
 		}
 		else {
@@ -47,7 +49,7 @@ public class ScreenControlICS extends ScreenControl {
 	public static boolean detectICS() {
 		if (FORCE_S3)
 			return true;
-		return (new File(SELECTOR).exists()) &&
+		return (new File(MODE).exists()) &&
 		   (new File(TUNING_CONTROL).exists());
 	}
 	
@@ -75,16 +77,7 @@ public class ScreenControlICS extends ScreenControl {
 	}
 	
 	public static String tuningControlRead() {
-		BufferedReader reader;
-		try {
-			reader = new BufferedReader( new FileReader(new File(TUNING_CONTROL)));
-			String line = reader.readLine();
-			return line;
-		} catch (FileNotFoundException e) {
-			return null;
-		} catch (IOException e) {
-			return null;
-		}
+		return readLine(TUNING_CONTROL);
 	}
 
 	public static boolean tuningControlWrite(Context context, String s, boolean startServiceIfNeeded) {
@@ -165,9 +158,18 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
+	@Override
+	public boolean isOutdoor() {
+		String data = tuningControlRead();
+		if (data.startsWith("/sdcard/mdnie"))
+			return false;
+		data = readLine(OUTDOOR);
+		return data != null && data.startsWith("1");
+	}
+	
 	@Override 
-	public boolean supportsOutdoor() {
-		return false; // TODO!
+	public boolean supportsToggleOutdoor() {
+		return true;
 	}
 	
 	@Override
@@ -178,5 +180,17 @@ public class ScreenControlICS extends ScreenControl {
 		if (file != null && file.length()>0) {
 			context.startService(new Intent(context, PowerOnService.class));
 		}
+	}
+	
+	protected void toggleOutdoor() {
+		boolean outdoor = isOutdoor();
+		tuningControlWrite("0");
+
+		String mode;
+		mode = readLine(MODE);
+		if (mode == null)
+			mode = "" + STANDARD;
+		writeLine(MODE, mode);
+		writeLine(OUTDOOR, outdoor ? "0" : "1");
 	}
 }

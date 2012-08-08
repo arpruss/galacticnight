@@ -111,6 +111,7 @@ public class GalacticNight extends Activity {
 		for (int i=0; i<ScreenControl.NUM_MODES; i++) {
 			if (id == ScreenControl.ids[i]) {
 				screenControl.set(i);
+				updateButtons();
 				break;
 			}
 		}
@@ -154,24 +155,40 @@ public class GalacticNight extends Activity {
     }
 
     public void updateButtons() {
+    	for (int i=0; i<ScreenControl.NUM_MODES; i++) {
+    		if (options.getBoolean(ScreenControl.prefs[i], true)) {
+    			findViewById(ScreenControl.ids[i]).setVisibility(View.VISIBLE);
+    		}
+    	}
+
     	if (hasMenuKey()) 
     		findViewById(R.id.menu).setVisibility(View.GONE);
     	else
     		findViewById(R.id.menu).setVisibility(View.VISIBLE);
     	
+    	
+    	GalacticNight.log("Checking outdoor");
+		if (screenControl.supportsToggleOutdoor()) {
+			findViewById(R.id.outdoor).setVisibility(View.GONE);
+			Button toggle = (Button)findViewById(R.id.toggle_outdoor);
+//			toggle.setVisibility(View.VISIBLE);
+	    	GalacticNight.log("Checking outdoor" + screenControl.isOutdoor());
+			toggle.setText(screenControl.isOutdoor() ? "Indoor" : "Outdoor");
+		}
+		else {
+//			findViewById(R.id.outdoor).setVisibility(View.VISIBLE);
+			findViewById(R.id.toggle_outdoor).setVisibility(View.GONE);
+		}
+		
+		if (!screenControl.supportNatural())
+			findViewById(R.id.natural).setVisibility(View.GONE);		
+
     	for (int i=0; i<ScreenControl.NUM_MODES; i++) {
-    		if (options.getBoolean(ScreenControl.prefs[i], true)) {
-    			findViewById(ScreenControl.ids[i]).setVisibility(View.VISIBLE);
-    		}
-    		else {
+    		if (!options.getBoolean(ScreenControl.prefs[i], true)) {
     			findViewById(ScreenControl.ids[i]).setVisibility(View.GONE);
     		}
     	}
-    	
-		if (!screenControl.supportsOutdoor())
-			findViewById(R.id.outdoor).setVisibility(View.GONE);
-		if (!screenControl.supportNatural())
-			findViewById(R.id.natural).setVisibility(View.GONE);		
+
     }
 
 	@Override

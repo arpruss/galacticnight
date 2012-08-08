@@ -24,7 +24,7 @@
     android:key="movie"
 />      
 <CheckBoxPreference 
-    android:title="Outdoor [GB only]"
+    android:title="Outdoor"
     android:defaultValue="true"
     android:key="outdoor"
 />      
