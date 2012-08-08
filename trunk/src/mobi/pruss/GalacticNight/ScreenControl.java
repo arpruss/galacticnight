@@ -34,16 +34,18 @@ abstract public class ScreenControl {
 	public static final int OUTDOOR = 9;
 	public static final int NOBLUE = 10;
 	public static final int BLUE = 11;
-	public static final int NUM_MODES = 12;
+	public static final int TOGGLE_OUTDOOR = 12;
+	public static final int NUM_MODES = 13;
 	
 	public static final int[] ids = {
 		R.id.dynamic, R.id.normal, R.id.movie, R.id.natural, R.id.red,
 		R.id.green, R.id.bw, R.id.reverse, R.id.sepia, R.id.outdoor,
-		R.id.noblue, R.id.blue 
+		R.id.noblue, R.id.blue, R.id.toggle_outdoor
 	};
 	public static final String[] prefs = {
 		"dynamic", "standard", "movie", "natural", "red",
-		"green", "bw", "invert", "sepia", "outdoor", "noBlue", "blue"
+		"green", "bw", "invert", "sepia", "outdoor", "noBlue", "blue",
+		"outdoor"
 	};
 	
 	protected static final int[] sepia 
@@ -154,7 +156,7 @@ abstract public class ScreenControl {
 		null, null, null, null,
 		red, green, bw,
 		null, sepia, null,
-		noblue, blue
+		noblue, blue, null
 	};
 	
 	protected int SCR_COUNT = 12;
@@ -170,18 +172,23 @@ abstract public class ScreenControl {
 	public ScreenControl(Context context) {
 		this.context = context;
 	}		
-	
-	protected void selectMode(int mode) {
-		File out = new File(selectorPath);
+
+	protected void writeLine(String filename, String data) {		
+		File out = new File(filename);
 		try {
 			FileOutputStream stream = new FileOutputStream(out);
-			stream.write((""+mode+"\n").getBytes());
+			stream.write((data+"\n").getBytes());
 			stream.close();
+			GalacticNight.log("Wrote "+data+" to "+filename);
 		} catch (FileNotFoundException e) {
-			GalacticNight.log("error "+selectorPath+" "+e);
+			GalacticNight.log("error "+filename+" "+e);
 		} catch (IOException e) {
-			GalacticNight.log("error "+selectorPath+" "+e);
+			GalacticNight.log("error "+filename+" "+e);
 		}
+	}
+	
+	protected void selectMode(int mode) {
+		writeLine(selectorPath, ""+mode);
 	}
 	
 	protected void saveMode(int mode) {
@@ -370,7 +377,7 @@ abstract public class ScreenControl {
 	public void uninstall() {
 	}
 	
-	public boolean supportsOutdoor() {
+	public boolean supportsToggleOutdoor() {
 		return false;
 	}
 
@@ -428,4 +435,20 @@ abstract public class ScreenControl {
 	public void updateService() {
 	}
 
+	public static String readLine(String filename) {
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader( new FileReader(new File(filename)));
+			String line = reader.readLine();
+			return line;
+		} catch (FileNotFoundException e) {
+			return null;
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public boolean isOutdoor() {
+		return false;
+	}
 }

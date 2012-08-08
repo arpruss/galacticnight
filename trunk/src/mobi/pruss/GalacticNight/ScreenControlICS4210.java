@@ -38,6 +38,9 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 			selectMode(setting);
 			(new File(workingColorPath)).delete();
 		}
+		else if (setting == TOGGLE_OUTDOOR) {
+			toggleOutdoor();
+		}
 	}
 	
 

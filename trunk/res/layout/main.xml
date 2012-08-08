@@ -128,10 +128,18 @@
                 android:textSize="12sp" />
 
             <Button
+                android:id="@+id/toggle_outdoor"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mode"
+                android:text="Outdoor"
+                android:textSize="12sp" />
+            <Button
                 android:id="@+id/reverse"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:onClick="mode"
                 android:text="Invert"
                 android:textSize="12sp" />
