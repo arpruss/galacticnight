@@ -34,13 +34,13 @@ abstract public class ScreenControl {
 	public static final int OUTDOOR = 9;
 	public static final int NOBLUE = 10;
 	public static final int BLUE = 11;
-	public static final int TOGGLE_OUTDOOR = 12;
+	public static final int OUTDOOR_ICS = 12;
 	public static final int NUM_MODES = 13;
 	
 	public static final int[] ids = {
 		R.id.dynamic, R.id.normal, R.id.movie, R.id.natural, R.id.red,
 		R.id.green, R.id.bw, R.id.reverse, R.id.sepia, R.id.outdoor,
-		R.id.noblue, R.id.blue, R.id.toggle_outdoor
+		R.id.noblue, R.id.blue, R.id.outdoor_ics
 	};
 	public static final String[] prefs = {
 		"dynamic", "standard", "movie", "natural", "red",
@@ -446,9 +446,10 @@ abstract public class ScreenControl {
 		} catch (IOException e) {
 			return null;
 		}
-	}
 
-	public boolean isOutdoor() {
+	}
+	
+	public boolean isICS() {
 		return false;
 	}
 }

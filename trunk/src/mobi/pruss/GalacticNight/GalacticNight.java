@@ -168,16 +168,11 @@ public class GalacticNight extends Activity {
     	
     	
     	GalacticNight.log("Checking outdoor");
-		if (screenControl.supportsToggleOutdoor()) {
+		if (screenControl.isICS()) {
 			findViewById(R.id.outdoor).setVisibility(View.GONE);
-			Button toggle = (Button)findViewById(R.id.toggle_outdoor);
-//			toggle.setVisibility(View.VISIBLE);
-	    	GalacticNight.log("Checking outdoor" + screenControl.isOutdoor());
-			toggle.setText(screenControl.isOutdoor() ? "Indoor" : "Outdoor");
 		}
 		else {
-//			findViewById(R.id.outdoor).setVisibility(View.VISIBLE);
-			findViewById(R.id.toggle_outdoor).setVisibility(View.GONE);
+			findViewById(R.id.outdoor_ics).setVisibility(View.GONE);
 		}
 		
 		if (!screenControl.supportNatural())

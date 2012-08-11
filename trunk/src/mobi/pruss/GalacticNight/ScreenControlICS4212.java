@@ -155,13 +155,14 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 		int[][] tweak = getTweak(setting);
 		
 		if (tweak != null) {
+			writeLine(OUTDOOR,"0");
 			GalacticNight.log("writing tweak");
 			writeTweakICS(prefix, tweak, suffix);
 		}
 		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC
 				|| setting == NATURAL) {
-			tuningControlWrite("0");
 			int mode;
+			
 			if (setting == MOVIE) {
 				mode = 3;
 			}
@@ -172,13 +173,10 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 				mode = setting;
 			}
 			GalacticNight.log("Setting to "+mode+" ("+setting+")");
-			
-			saveMode(mode); 
-			selectMode(mode);
-			(new File(workingColorPath)).delete();
+			setOSMode(mode);
 		}
-		else if (setting == TOGGLE_OUTDOOR) {
-			toggleOutdoor();
+		else if (setting == OUTDOOR_ICS) {
+			setOutdoor();
 		}
 	}
 	

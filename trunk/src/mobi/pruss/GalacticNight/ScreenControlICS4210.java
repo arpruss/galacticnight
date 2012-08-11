@@ -30,16 +30,14 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 		int[][] tweak = getTweak(setting);
 		
 		if (tweak != null) {
+			writeLine(OUTDOOR,"0");
 			writeTweakICS(activater, tweak, null);
 		}
 		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC) {
-			tuningControlWrite("0");
-			saveMode(setting); 
-			selectMode(setting);
-			(new File(workingColorPath)).delete();
+			setOSMode(setting);
 		}
-		else if (setting == TOGGLE_OUTDOOR) {
-			toggleOutdoor();
+		else if (setting == OUTDOOR_ICS) {
+			setOutdoor();
 		}
 	}
 	

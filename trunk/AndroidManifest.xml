@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      android:versionCode="13"
-      android:versionName="0.13" package="mobi.pruss.GalacticNight">
+      android:versionCode="15"
+      android:versionName="0.99rc3" package="mobi.pruss.GalacticNight">
 
      <uses-sdk android:minSdkVersion="10" />
      
      <uses-permission android:name="android.permission.WRITE_SETTINGS"/>  
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>    
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+     	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>    
     <application android:label="Galactic Night"
             android:icon="@drawable/icon"
     >

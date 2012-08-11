@@ -158,15 +158,6 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
-	@Override
-	public boolean isOutdoor() {
-		String data = tuningControlRead();
-		if (data.startsWith("/sdcard/mdnie"))
-			return false;
-		data = readLine(OUTDOOR);
-		return data != null && data.startsWith("1");
-	}
-	
 	@Override 
 	public boolean supportsToggleOutdoor() {
 		return true;
@@ -182,15 +173,26 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
-	protected void toggleOutdoor() {
-		boolean outdoor = isOutdoor();
+	protected void setOutdoor() {
 		tuningControlWrite("0");
-
 		String mode;
 		mode = readLine(MODE);
 		if (mode == null)
 			mode = "" + STANDARD;
 		writeLine(MODE, mode);
-		writeLine(OUTDOOR, outdoor ? "0" : "1");
+		writeLine(OUTDOOR, "1");
+	}
+	
+	protected void setOSMode(int mode) {
+		tuningControlWrite("0");
+		saveMode(mode);
+		writeLine(OUTDOOR,"0");
+		selectMode(mode);
+		(new File(workingColorPath)).delete();
+	}
+	
+	@Override
+	public boolean isICS() {
+		return true;
 	}
 }
