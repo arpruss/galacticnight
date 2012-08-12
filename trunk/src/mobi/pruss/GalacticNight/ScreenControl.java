@@ -35,17 +35,18 @@ abstract public class ScreenControl {
 	public static final int NOBLUE = 10;
 	public static final int BLUE = 11;
 	public static final int OUTDOOR_ICS = 12;
-	public static final int NUM_MODES = 13;
+	public static final int BW_SEPIA = 13;
+	public static final int NUM_MODES = 14;
 	
 	public static final int[] ids = {
 		R.id.dynamic, R.id.normal, R.id.movie, R.id.natural, R.id.red,
 		R.id.green, R.id.bw, R.id.reverse, R.id.sepia, R.id.outdoor,
-		R.id.noblue, R.id.blue, R.id.outdoor_ics
+		R.id.noblue, R.id.blue, R.id.outdoor_ics, R.id.bw_sepia
 	};
 	public static final String[] prefs = {
 		"dynamic", "standard", "movie", "natural", "red",
 		"green", "bw", "invert", "sepia", "outdoor", "noBlue", "blue",
-		"outdoor"
+		"outdoor", "bwSepia"
 	};
 	
 	protected static final int[] sepia 
@@ -62,7 +63,22 @@ abstract public class ScreenControl {
 		  0x00ff,
 		  0x00ba
 	};
-	
+
+	protected static final int[] bwSepia = { 
+	0x001b,	//kb R
+	0x89a4,	//gc R
+	0x4661,	//rm R
+	0xcfe9,	//yw R
+	0x0019,	//kb G
+	0x7f98,	//gc G
+	0x415a,	//rm G
+	0xc0d8,	//yw G
+	0x0016,	//kb B
+	0x6e83,	//gc B
+	0x384d,	//rm B
+	0xa5ba	//yw B
+	};
+
 	protected static final int[] noblue = {
 		0x001D,
 		0x001d,
@@ -156,7 +172,8 @@ abstract public class ScreenControl {
 		null, null, null, null,
 		red, green, bw,
 		null, sepia, null,
-		noblue, blue, null
+		noblue, blue, null,
+		bwSepia
 	};
 	
 	protected int SCR_COUNT = 12;
