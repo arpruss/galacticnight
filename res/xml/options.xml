@@ -65,6 +65,11 @@
     android:key="bw"
 />      
 <CheckBoxPreference 
+    android:title="Mono sepia"
+    android:defaultValue="true"
+    android:key="bwSepia"
+/>      
+<CheckBoxPreference 
     android:title="Invert"
     android:defaultValue="true"
     android:key="invert"
