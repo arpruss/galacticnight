@@ -155,6 +155,9 @@ public class GalacticNight extends Activity {
     }
 
     public void updateButtons() {
+    	if (screenControl == null)
+    		return;
+    	
     	for (int i=0; i<ScreenControl.NUM_MODES; i++) {
     		if (options.getBoolean(ScreenControl.prefs[i], true)) {
     			findViewById(ScreenControl.ids[i]).setVisibility(View.VISIBLE);
