@@ -168,7 +168,7 @@
                 android:id="@+id/menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="openMenu"
+                android:onClick="menuButton"
                 android:text="More..."
                 android:textSize="12sp" />
             <Button

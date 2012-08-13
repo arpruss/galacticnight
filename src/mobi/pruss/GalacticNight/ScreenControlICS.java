@@ -46,6 +46,11 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
+	@Override
+	public void lock() {
+		Root.runOne("chmod 664 "+selectorPath+" "+TUNING_CONTROL+" "+OUTDOOR);
+	}
+	
 	public static boolean detectICS() {
 		if (FORCE_S3)
 			return true;

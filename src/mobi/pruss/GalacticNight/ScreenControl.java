@@ -469,4 +469,11 @@ abstract public class ScreenControl {
 	public boolean isICS() {
 		return false;
 	}
+	
+	public void lock() {		
+	}
+	
+	public boolean isGB() {
+		return false;
+	}
 }

@@ -50,8 +50,8 @@ public class ScreenControlGB extends ScreenControl {
 	
 	static final String LINK_UI_CHECKSUM = "e2276e0176e17890788ccbf4909e97c4";
 	static final String LINK_ADJ_CHECKSUM = "87fc844c950c1e842f264720f9d4b76c";
-	static final String LINK_UI_CHECKSUM_NOTE = "67ecdcc627d91564ad938106d334b401";
-	static final String LINK_ADJ_CHECKSUM_NOTE = "63c08567bbc0acce68b771ac8a3a9333";
+	static final String LINK_ADJ_CHECKSUM_NOTE = "67ecdcc627d91564ad938106d334b401";
+	static final String LINK_UI_CHECKSUM_NOTE = "63c08567bbc0acce68b771ac8a3a9333";
 	
 	public ScreenControlGB(Context context) {
 		super(context);
@@ -74,6 +74,11 @@ public class ScreenControlGB extends ScreenControl {
 			}
 		}
 		
+	}
+
+	@Override
+	public void lock() {
+		Root.runOne("chmod 664 "+selectorPath);
 	}
 	
 	public static boolean detect(String cpu) {
@@ -301,5 +306,10 @@ public class ScreenControlGB extends ScreenControl {
 		sum = checksum(mdnieDir+LINK_UI);
 		return sum != null && (0 == sum.compareTo(LINK_UI_CHECKSUM)||
 				0 == sum.compareTo(LINK_UI_CHECKSUM_NOTE));
+	}
+	
+	@Override
+	public boolean isGB() {
+		return true;
 	}
 }
