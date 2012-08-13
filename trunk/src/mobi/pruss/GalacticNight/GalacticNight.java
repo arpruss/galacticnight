@@ -1,14 +1,21 @@
 package mobi.pruss.GalacticNight;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +32,7 @@ public class GalacticNight extends Activity {
 	private LinearLayout main;
 	private boolean installed;
 	private SharedPreferences options;
+	private int versionCode;
 	public static final boolean DEBUG = true;
 
 	private void message(String title, String msg, final boolean finish) {
@@ -61,7 +69,45 @@ public class GalacticNight extends Activity {
 		else {
 			install.setText("Install");
 			hide(R.id.color_modes);
-		}		
+		}
+	}
+	
+	private void warning() {
+		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+
+		alertDialog.setTitle("Warning");
+		alertDialog.setMessage(Html.fromHtml(getAssetFile("warning.html")));
+		alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, 
+				"Yes", 
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				options.edit().putInt(Options.PREF_WARNED_LAST_VERSION, versionCode).commit();
+			} });
+		alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, 
+				"No", 
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				GalacticNight.this.finish();
+			} });
+		alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			public void onCancel(DialogInterface dialog) {
+				GalacticNight.this.finish();
+			} });
+		alertDialog.show();
+
+	}
+	
+	private void versionUpdate() {
+		log("version "+versionCode);
+		
+		if (options.getInt(Options.PREF_LAST_VERSION, 0) != versionCode) {
+			options.edit().putInt(Options.PREF_LAST_VERSION, versionCode).commit();
+			show("Change log", "changelog.html");
+		}
+		
+		if (options.getInt(Options.PREF_WARNED_LAST_VERSION, 0) != versionCode) {
+			warning();
+		}
 	}
 	
 	private void show(int id) {
@@ -95,13 +141,18 @@ public class GalacticNight extends Activity {
 				if (!screenControl.install()) {
 					message("Failure installing",
 							"It seems that your device is not supported.  You may want to "+
-							"install catlog from Android Market, try installing GalacticNight again "+
+							"install catlog from Android Market, try installing Galactic Night again "+
 							"and if it fails again, go immediately to catlog and send your log and device information "+
 							"to arpruss@gmail.com",
 							true);
 				}
 				else {
 					setInstalled(true);
+					message("Important information",
+							"If you ever want to uninstall the Galactic Night application, "+
+							"first go to Galactic Night and click on 'uninstall'.  Otherwise, "+
+							"your Dynamic display profile will be fixed to whatever Galactic Night "+
+							"was last set to.");
 				}
 			}
 
@@ -121,24 +172,17 @@ public class GalacticNight extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		try {
+			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+		} catch (NameNotFoundException e) {
+			versionCode = 0;
+		} 
+		
 		options = PreferenceManager.getDefaultSharedPreferences(this);
 
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 		main = (LinearLayout)getLayoutInflater().inflate(R.layout.main, null);
-		setContentView(main);
-		
-		screenControl = ScreenControl.getScreenControl(this);
-		if (screenControl == null || !screenControl.valid) {
-			message("Failure starting",
-					"It seems that your device is not rooted or not supported.  You may want to "+
-					"install catlog from Android Market, try installing GalacticNight again "+
-					"and if it fails again, go immediately to catlog and send your log and device information "+
-					"to arpruss@gmail.com", true);
-		}
-		else {
-			setInstalled(screenControl.deemInstalled());
-			screenControl.updateService();			
-		}
+		setContentView(main);		
 	}
 	
     void resize() {
@@ -188,6 +232,26 @@ public class GalacticNight extends Activity {
     	}
 
     }
+    
+    @Override
+    public void onStart() {
+    	super.onStart();
+    	
+		screenControl = ScreenControl.getScreenControl(this);
+		if (screenControl == null || !screenControl.valid) {
+			message("Failure starting",
+					"It seems that your device is not rooted or not supported.  You may want to "+
+					"install catlog from Android Market, try installing GalacticNight again "+
+					"and if it fails again, go immediately to catlog and send your log and device information "+
+					"to arpruss@gmail.com", true);
+		}
+		else {
+			setInstalled(screenControl.deemInstalled());
+			screenControl.updateService();			
+		}
+
+		versionUpdate();
+    }
 
 	@Override
 	public void onResume() {
@@ -198,6 +262,16 @@ public class GalacticNight extends Activity {
 		updateButtons();
 		
 		GalacticNight.log("resume");
+	}	
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		
+		if (screenControl != null) {
+			screenControl.lock();
+			screenControl = null;
+		}
 	}	
 
 	public void menuButton(View v) {
@@ -237,4 +311,38 @@ public class GalacticNight extends Activity {
 		return ViewConfiguration.get(this).hasPermanentMenuKey();
 		
 	}
+
+	public String getAssetFile(String assetName) {
+		try {
+			return getStreamFile(getAssets().open(assetName));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			return "";
+		}
+	}
+	
+	static private String getStreamFile(InputStream stream) {
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new InputStreamReader(stream));
+
+			String text = "";
+			String line;
+			while (null != (line=reader.readLine()))
+				text = text + line;
+			return text;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			return "";
+		}
+	}
+	
+	private void show(String title, String filename) {
+		message(title, getAssetFile(filename));		
+	}
+	
+	private void message(String title, String msg) {
+		message(title, msg, false);
+	}
+	
 }
