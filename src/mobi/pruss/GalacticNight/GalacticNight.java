@@ -286,6 +286,9 @@ public class GalacticNight extends Activity {
 			Intent i = new Intent(this, Options.class);
 			startActivity(i);
 			return true;
+		case R.id.please_buy:
+			MarketDetector.launch(this);
+			return true;
 		}
 		
 		return false;
