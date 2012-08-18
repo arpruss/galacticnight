@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import android.content.Context;
 
-public class ScreenControlICS4210 extends ScreenControlICS {
+public class ScreenControlICS4210 extends ScreenControlICS42xx {
 	private static final int[][] activater ={ 
 		{ 0x0001, 0x0040 } };
 	
@@ -22,7 +22,9 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 		if (!cpu.endsWith("210"))
 			return false;
 		
-		return detectICS() && !(new Device().is(Device.GALAXYS3)); 
+		GalacticNight.log("CPU for 4210 mode detected");
+		
+		return detectICS42xx(); 
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 		int[][] tweak = getTweak(setting);
 		
 		if (tweak != null) {
-			writeLine(OUTDOOR,"0");
+			writeLine(OUTDOOR_CONTROL,"0");
 			writeTweakICS(activater, tweak, null);
 		}
 		else if (setting == STANDARD || setting == MOVIE || setting == DYNAMIC) {
@@ -40,6 +42,10 @@ public class ScreenControlICS4210 extends ScreenControlICS {
 			setOutdoor();
 		}
 	}
-	
+
+	@Override
+	public boolean support(int setting) {
+		return setting != NATURAL;
+	}
 
 }

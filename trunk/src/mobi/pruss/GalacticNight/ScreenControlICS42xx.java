@@ -12,22 +12,21 @@ import java.util.regex.Pattern;
 import android.content.Context;
 import android.content.Intent;
 
-public class ScreenControlICS extends ScreenControl {
+public class ScreenControlICS42xx extends ScreenControl {
 	public static final boolean FORCE_S3 = false; // debug
 	public static final boolean FORCE_ICS_S2 = false; // debug
 	
 	protected static final String MODE = "/sys/class/mdnie/mdnie/mode";
-	protected static final String OUTDOOR = "/sys/class/mdnie/mdnie/outdoor";
+	protected static final String OUTDOOR_CONTROL = "/sys/class/mdnie/mdnie/outdoor";
 	protected static final String TUNING_CONTROL = "/sys/class/mdnie/mdnie/tunning"; // [sic]
 	
 //	public static final String MODE = "/sdcard/mdnie/test_mode";
-//	protected static final String OUTDOOR = "/sdcard/mdnie/test_outdoor";
+//	protected static final String OUTDOOR_CONTROL = "/sdcard/mdnie/test_outdoor";
 //	public static final String TUNING_CONTROL = "/sdcard/mdnie/test_tunning";
 	
 	protected static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
-	protected Device device;
 
-	public ScreenControlICS(Context context) {
+	public ScreenControlICS42xx(Context context) {
 		super(context);
 
 		selectorPath = MODE; 
@@ -36,9 +35,8 @@ public class ScreenControlICS extends ScreenControl {
 		workingColorPath = gnDir + SUBST;
 		
 		valid = false;		
-		device = new Device();
 		
-		if (Root.runOne("chmod 666 "+selectorPath+" "+TUNING_CONTROL+" "+OUTDOOR)) {
+		if (unlockICS42xx()) {
 			valid = true;
 		}
 		else {
@@ -46,16 +44,29 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
-	@Override
-	public void lock() {
-		Root.runOne("chmod 664 "+selectorPath+" "+TUNING_CONTROL+" "+OUTDOOR);
+	private static boolean unlockICS42xx() {
+		return Root.runOne("chmod 666 "+MODE+" "+TUNING_CONTROL+" "+OUTDOOR_CONTROL);		
 	}
 	
-	public static boolean detectICS() {
+	
+	
+	@Override
+	public void lock() {
+		Root.runOne("chmod 664 "+selectorPath+" "+TUNING_CONTROL+" "+OUTDOOR_CONTROL);
+	}
+	
+	public static boolean detectICS42xx() {
 		if (FORCE_S3)
 			return true;
-		return (new File(MODE).exists()) &&
-		   (new File(TUNING_CONTROL).exists());
+		
+		boolean modeExists = new File(MODE).exists();
+		boolean tuningExists = new File(TUNING_CONTROL).exists();
+		
+		GalacticNight.log(""+MODE+" "+modeExists+" "+TUNING_CONTROL+" "+tuningExists);
+
+		return modeExists && tuningExists;
+//		return (new File(MODE).exists()) &&
+//		   (new File(TUNING_CONTROL).exists());
 	}
 	
 	@Override
@@ -86,6 +97,11 @@ public class ScreenControlICS extends ScreenControl {
 	}
 
 	public static boolean tuningControlWrite(Context context, String s, boolean startServiceIfNeeded) {
+		File tuning = new File(TUNING_CONTROL);
+		if (!tuning.canWrite()) {
+			GalacticNight.log("unlocking");
+			unlockICS42xx();
+		}
 		FileWriter w = null;
 		boolean success = false;
 			
@@ -96,6 +112,7 @@ public class ScreenControlICS extends ScreenControl {
 			GalacticNight.log("Wrote "+s+" to "+TUNING_CONTROL);
 			success = true;
 		} catch (IOException e) {
+			GalacticNight.log("Error writing "+e);
 			if (w != null) {
 				try {
 					w.close();
@@ -163,11 +180,6 @@ public class ScreenControlICS extends ScreenControl {
 		}
 	}
 	
-	@Override 
-	public boolean supportsToggleOutdoor() {
-		return true;
-	}
-	
 	@Override
 	public void updateService() {
 		context.stopService(new Intent(context, PowerOnService.class));
@@ -185,19 +197,19 @@ public class ScreenControlICS extends ScreenControl {
 		if (mode == null)
 			mode = "" + STANDARD;
 		writeLine(MODE, mode);
-		writeLine(OUTDOOR, "1");
+		writeLine(OUTDOOR_CONTROL, "1");
 	}
 	
 	protected void setOSMode(int mode) {
 		tuningControlWrite("0");
 		saveMode(mode);
-		writeLine(OUTDOOR,"0");
+		writeLine(OUTDOOR_CONTROL,"0");
 		selectMode(mode);
 		(new File(workingColorPath)).delete();
 	}
 	
 	@Override
-	public boolean isICS() {
+	public boolean isICS42xx() {
 		return true;
 	}
 }

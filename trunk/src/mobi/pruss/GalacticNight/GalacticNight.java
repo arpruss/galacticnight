@@ -203,7 +203,8 @@ public class GalacticNight extends Activity {
     		return;
     	
     	for (int i=0; i<ScreenControl.NUM_MODES; i++) {
-    		if (options.getBoolean(ScreenControl.prefs[i], true)) {
+    		if (options.getBoolean(ScreenControl.prefs[i], true)
+    				&& screenControl.support(i)) {
     			findViewById(ScreenControl.ids[i]).setVisibility(View.VISIBLE);
     		}
     	}
@@ -215,18 +216,17 @@ public class GalacticNight extends Activity {
     	
     	
     	GalacticNight.log("Checking outdoor");
-		if (screenControl.isICS()) {
+
+    	if (screenControl.isICS42xx()) {
 			findViewById(R.id.outdoor).setVisibility(View.GONE);
 		}
 		else {
 			findViewById(R.id.outdoor_ics).setVisibility(View.GONE);
 		}
 		
-		if (!screenControl.supportNatural())
-			findViewById(R.id.natural).setVisibility(View.GONE);		
-
     	for (int i=0; i<ScreenControl.NUM_MODES; i++) {
-    		if (!options.getBoolean(ScreenControl.prefs[i], true)) {
+    		if (!options.getBoolean(ScreenControl.prefs[i], true) ||
+    		!screenControl.support(i)) {
     			findViewById(ScreenControl.ids[i]).setVisibility(View.GONE);
     		}
     	}

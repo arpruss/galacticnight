@@ -190,17 +190,21 @@ abstract public class ScreenControl {
 		this.context = context;
 	}		
 
-	protected void writeLine(String filename, String data) {		
+	protected boolean writeLine(String filename, String data) {		
 		File out = new File(filename);
 		try {
 			FileOutputStream stream = new FileOutputStream(out);
 			stream.write((data+"\n").getBytes());
 			stream.close();
-			GalacticNight.log("Wrote "+data+" to "+filename);
+			if (data.length() < 200)
+				GalacticNight.log("Wrote "+data+" to "+filename);
+			return true;
 		} catch (FileNotFoundException e) {
 			GalacticNight.log("error "+filename+" "+e);
+			return false;
 		} catch (IOException e) {
 			GalacticNight.log("error "+filename+" "+e);
+			return false;
 		}
 	}
 	
@@ -253,7 +257,7 @@ abstract public class ScreenControl {
 		try {
 			BufferedReader reader = new BufferedReader( new FileReader(f));
 			String line;
-			Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,0[xX]([a-fA-F0-9]+).*");
+			Pattern pat = Pattern.compile("\\s*0[xX]([a-fA-F0-9]+)\\s*,\\s*0[xX]([a-fA-F0-9]+).*");
 			while(null != (line = reader.readLine())) {
 				Matcher m = pat.matcher(line);
 				if (m.find()) {
@@ -394,10 +398,6 @@ abstract public class ScreenControl {
 	public void uninstall() {
 	}
 	
-	public boolean supportsToggleOutdoor() {
-		return false;
-	}
-
 	public static ScreenControl getScreenControl(Context c) {
 		String cpu = getCPU();
 		if (ScreenControlICS4210.detect(cpu)) {
@@ -407,6 +407,10 @@ abstract public class ScreenControl {
 		else if (ScreenControlICS4212.detect(cpu)) {
 			GalacticNight.log("Detected ICS 4212 mdnie");
 			return new ScreenControlICS4212(c);
+		}
+		else if (ScreenControlICSMDP.detect(cpu)) {
+			GalacticNight.log("Detected ICS MDP mdnie");
+			return new ScreenControlICSMDP(c);
 		}
 		else if (ScreenControlGB.detect(cpu)) {
 			GalacticNight.log("Detected GB mdnie");
@@ -445,10 +449,6 @@ abstract public class ScreenControl {
 		return original;
 	}
 
-	public boolean supportNatural() {
-		return false;
-	}
-
 	public void updateService() {
 	}
 
@@ -466,7 +466,7 @@ abstract public class ScreenControl {
 
 	}
 	
-	public boolean isICS() {
+	public boolean isICS42xx() {
 		return false;
 	}
 	
@@ -474,6 +474,10 @@ abstract public class ScreenControl {
 	}
 	
 	public boolean isGB() {
+		return false;
+	}
+	
+	public boolean support(int setting) {
 		return false;
 	}
 }

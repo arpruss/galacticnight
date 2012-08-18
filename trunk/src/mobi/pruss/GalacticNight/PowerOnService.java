@@ -97,7 +97,7 @@ public class PowerOnService extends Service {
 		}
 		
 		private void handleScreenOff(Context context) {
-			String data = ScreenControlICS.tuningControlRead();
+			String data = ScreenControlICS42xx.tuningControlRead();
 			GalacticNight.log("Screen off");
 			if (data != null && data.startsWith("/sdcard/mdnie/") &&
 					PreferenceManager.getDefaultSharedPreferences(context)
@@ -117,15 +117,17 @@ public class PowerOnService extends Service {
 		}
 		
 		private void handleScreenOn(Context context) {
-			String data = ScreenControlICS.tuningControlRead();
-			GalacticNight.log("Screen off");
+			String data = ScreenControlICS42xx.tuningControlRead();
+			GalacticNight.log("Screen on");
+			if (data != null) 
+				GalacticNight.log("data:"+data);
 			if (data != null && data.startsWith("/sdcard/mdnie/")) {
 				GalacticNight.log("rewriting tuningControl");				
 //				try {
 //					Thread.sleep(6000,0);
 //				} catch (Exception e) {
 //				}
-				ScreenControlICS.tuningControlWrite(context, data.substring(14), false);
+				ScreenControlICS42xx.tuningControlWrite(context, data.substring(14), false);
 			}
 			else {
 				GalacticNight.log("no tuningControl");
