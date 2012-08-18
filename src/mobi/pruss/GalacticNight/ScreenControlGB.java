@@ -312,4 +312,9 @@ public class ScreenControlGB extends ScreenControl {
 	public boolean isGB() {
 		return true;
 	}
+	
+	@Override
+	public boolean support(int setting) {
+		return setting != NATURAL;
+	}
 }

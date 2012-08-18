@@ -5,12 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.Context;
 
-public class ScreenControlICS4212 extends ScreenControlICS {
+public class ScreenControlICS4212 extends ScreenControlICS42xx {
 	
 	public ScreenControlICS4212(Context context) {
 		super(context);
@@ -22,10 +23,14 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 		if (!FORCE_ICS_S2 && FORCE_S3)
 			return true;
 
-		if (!cpu.endsWith("12"))
+		if (!cpu.endsWith("12")) {
+			GalacticNight.log("Failed ICS4212 CPU test <"+cpu.toLowerCase(Locale.US)+">");
 			return false;
+		}
 		
-		return detectICS(); // && (new Device().is(Device.GALAXYS3)); 
+		GalacticNight.log("Passed ICS4212 CPU test");
+		
+		return detectICS42xx(); // && (new Device().is(Device.GALAXYS3)); 
 	}
 
 	int[][] prefix = {
@@ -155,7 +160,7 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 		int[][] tweak = getTweak(setting);
 		
 		if (tweak != null) {
-			writeLine(OUTDOOR,"0");
+			writeLine(OUTDOOR_CONTROL,"0");
 			GalacticNight.log("writing tweak");
 			writeTweakICS(prefix, tweak, suffix);
 		}
@@ -181,7 +186,7 @@ public class ScreenControlICS4212 extends ScreenControlICS {
 	}
 	
 	@Override
-	public boolean supportNatural() {
+	public boolean support(int setting) {
 		return true;
 	}
 }
