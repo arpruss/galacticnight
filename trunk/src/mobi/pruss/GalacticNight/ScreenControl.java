@@ -190,7 +190,7 @@ abstract public class ScreenControl {
 		this.context = context;
 	}		
 
-	protected boolean writeLine(String filename, String data) {		
+	protected static boolean writeLine(String filename, String data) {		
 		File out = new File(filename);
 		try {
 			FileOutputStream stream = new FileOutputStream(out);

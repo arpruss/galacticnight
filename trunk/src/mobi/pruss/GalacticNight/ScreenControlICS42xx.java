@@ -92,6 +92,10 @@ public class ScreenControlICS42xx extends ScreenControl {
 		return tuningControlWrite(this.context, s, true);
 	}
 	
+	public static void modeControlWrite(int value) {
+		writeLine(MODE, ""+value);
+	}
+	
 	public static String tuningControlRead() {
 		return readLine(TUNING_CONTROL);
 	}

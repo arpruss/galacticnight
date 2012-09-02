@@ -4,7 +4,7 @@
 <CheckBoxPreference 
     android:title="Show logo on power"
     android:summary="On ICS, briefly show logo after turning on screen to prevent flash of non-nightmode display."
-    android:defaultValue="true"
+    android:defaultValue="false"
     android:key="showLogo"
 />      
 <PreferenceCategory
