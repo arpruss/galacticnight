@@ -101,7 +101,7 @@ public class PowerOnService extends Service {
 			GalacticNight.log("Screen off");
 			if (data != null && data.startsWith("/sdcard/mdnie/") &&
 					PreferenceManager.getDefaultSharedPreferences(context)
-					    .getBoolean(Options.PREF_SHOW_LOGO, true)) {		
+					    .getBoolean(Options.PREF_SHOW_LOGO, false)) {		
 		        
 				GalacticNight.log("drawing image");
 		        image = new ImageView(PowerOnService.this);
@@ -122,12 +122,15 @@ public class PowerOnService extends Service {
 			if (data != null) 
 				GalacticNight.log("data:"+data);
 			if (data != null && data.startsWith("/sdcard/mdnie/")) {
-				GalacticNight.log("rewriting tuningControl");				
-//				try {
-//					Thread.sleep(6000,0);
-//				} catch (Exception e) {
-//				}
+				GalacticNight.log("rewriting tuningControl");
+				ScreenControlICS42xx.tuningControlWrite(context, "0", false);
+				ScreenControlICS42xx.modeControlWrite(ScreenControl.STANDARD);
+				ScreenControlICS42xx.tuningControlWrite(context, "1", false);				
 				ScreenControlICS42xx.tuningControlWrite(context, data.substring(14), false);
+//				try {
+//				Thread.sleep(500,0);
+//			} catch (Exception e) {
+//			}
 			}
 			else {
 				GalacticNight.log("no tuningControl");
