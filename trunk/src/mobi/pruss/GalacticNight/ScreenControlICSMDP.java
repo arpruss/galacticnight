@@ -231,6 +231,8 @@ public class ScreenControlICSMDP extends ScreenControl {
 		return new File(SCENARIO_CONTROL).exists() &&
 			new File(TUNING_CONTROL).exists() &&
 			new File(OUTDOOR_CONTROL).exists() &&
-			(cpu.contains("quincy") || cpu.contains("SAMSUNG M2_"));
+			(cpu.contains("quincy") || cpu.contains("SAMSUNG M2_")
+			|| cpu.contains("SGH-T989")		
+			);
 	}
 }
