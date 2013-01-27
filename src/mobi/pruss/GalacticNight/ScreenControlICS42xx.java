@@ -18,11 +18,13 @@ public class ScreenControlICS42xx extends ScreenControl {
 	
 	protected static final String MODE = "/sys/class/mdnie/mdnie/mode";
 	protected static final String OUTDOOR_CONTROL = "/sys/class/mdnie/mdnie/outdoor";
-	protected static final String TUNING_CONTROL = "/sys/class/mdnie/mdnie/tunning"; // [sic]
+	protected String tuningControl; 
+	private static final String TUNING_CONTROL_OLD = "/sys/class/mdnie/mdnie/tunning"; // [sic]
+	private static final String TUNING_CONTROL_NEW = "/sys/class/mdnie/mdnie/tuning"; 
 	
 //	public static final String MODE = "/sdcard/mdnie/test_mode";
 //	protected static final String OUTDOOR_CONTROL = "/sdcard/mdnie/test_outdoor";
-//	public static final String TUNING_CONTROL = "/sdcard/mdnie/test_tunning";
+//	public static final String tuningControl = "/sdcard/mdnie/test_tunning";
 	
 	protected static final String SUBST = "GalacticNightTuning"; // must not start with 0 or 1
 
@@ -33,6 +35,7 @@ public class ScreenControlICS42xx extends ScreenControl {
 		(new File("/sdcard/mdnie")).mkdir();
 		gnDir = "/sdcard/mdnie/";
 		workingColorPath = gnDir + SUBST;
+		tuningControl = getTuningControl();
 		
 		valid = false;		
 		
@@ -44,15 +47,22 @@ public class ScreenControlICS42xx extends ScreenControl {
 		}
 	}
 	
-	private static boolean unlockICS42xx() {
-		return Root.runOne("chmod 666 "+MODE+" "+TUNING_CONTROL+" "+OUTDOOR_CONTROL);		
+	private static String getTuningControl() {
+		if (new File(TUNING_CONTROL_OLD).exists()) {
+			return TUNING_CONTROL_OLD;
+		}
+		else {
+			return TUNING_CONTROL_NEW;
+		}
 	}
-	
-	
+
+	private static boolean unlockICS42xx() {
+		return Root.runOne("chmod 666 "+MODE+" "+getTuningControl()+" "+OUTDOOR_CONTROL);		
+	}
 	
 	@Override
 	public void lock() {
-		Root.runOne("chmod 664 "+selectorPath+" "+TUNING_CONTROL+" "+OUTDOOR_CONTROL);
+		Root.runOne("chmod 664 "+selectorPath+" "+tuningControl+" "+OUTDOOR_CONTROL);
 	}
 	
 	public static boolean detectICS42xx() {
@@ -60,13 +70,14 @@ public class ScreenControlICS42xx extends ScreenControl {
 			return true;
 		
 		boolean modeExists = new File(MODE).exists();
-		boolean tuningExists = new File(TUNING_CONTROL).exists();
+		String tuningControl = getTuningControl();
+		boolean tuningExists = new File(tuningControl).exists();
 		
-		GalacticNight.log(""+MODE+" "+modeExists+" "+TUNING_CONTROL+" "+tuningExists);
+		GalacticNight.log(""+MODE+" "+modeExists+" "+tuningControl+" "+tuningExists);
 
 		return modeExists && tuningExists;
 //		return (new File(MODE).exists()) &&
-//		   (new File(TUNING_CONTROL).exists());
+//		   (new File(tuningControl).exists());
 	}
 	
 	@Override
@@ -97,11 +108,13 @@ public class ScreenControlICS42xx extends ScreenControl {
 	}
 	
 	public static String tuningControlRead() {
-		return readLine(TUNING_CONTROL);
+		return readLine(getTuningControl());
 	}
 
 	public static boolean tuningControlWrite(Context context, String s, boolean startServiceIfNeeded) {
-		File tuning = new File(TUNING_CONTROL);
+		String tuningControl = getTuningControl();
+		
+		File tuning = new File(tuningControl);
 		if (!tuning.canWrite()) {
 			GalacticNight.log("unlocking");
 			unlockICS42xx();
@@ -110,10 +123,10 @@ public class ScreenControlICS42xx extends ScreenControl {
 		boolean success = false;
 			
 		try {
-			w = new FileWriter(new File(TUNING_CONTROL));
+			w = new FileWriter(new File(tuningControl));
 			w.write(s+"\n");
 			w.close();
-			GalacticNight.log("Wrote "+s+" to "+TUNING_CONTROL);
+			GalacticNight.log("Wrote "+s+" to "+tuningControl);
 			success = true;
 		} catch (IOException e) {
 			GalacticNight.log("Error writing "+e);
