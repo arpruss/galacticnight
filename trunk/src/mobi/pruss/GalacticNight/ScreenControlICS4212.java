@@ -1,5 +1,7 @@
 package mobi.pruss.GalacticNight;
 
+// Galaxy S3 and Note 2
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -12,11 +14,18 @@ import java.util.regex.Pattern;
 import android.content.Context;
 
 public class ScreenControlICS4212 extends ScreenControlICS42xx {
-	
 	public ScreenControlICS4212(Context context) {
 		super(context);
 		
 		exynos4212 = true;
+		
+		if(getCPURevision().equals("000b")) {
+			// note2 tweak 
+			for (int i=0; i<suffix.length; i++) {
+				if (suffix[i][0]==0x0021)
+					suffix[i][1] = 0x1090;
+			}
+		}
 	}
 	
 	static public boolean detect(String cpu) {
@@ -51,7 +60,7 @@ public class ScreenControlICS4212 extends ScreenControlICS42xx {
 	{0x0000, 0x0001},
 	{0x001f, 0x0080},
 	{0x0020, 0x0000},
-	{0x0021, 0x0290},
+	{0x0021, 0x0290}, // for S3
 	{0x0022, 0x20a0},
 	{0x0023, 0x30b0},
 	{0x0024, 0x40c0},

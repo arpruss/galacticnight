@@ -399,6 +399,7 @@ abstract public class ScreenControl {
 	}
 	
 	public static ScreenControl getScreenControl(Context c) {
+		getCPURevision();
 		String cpu = getCPU();
 		if (ScreenControlICS4210.detect(cpu)) {
 			GalacticNight.log("Detected ICS 4210 mdnie");
@@ -432,6 +433,25 @@ abstract public class ScreenControl {
 				Matcher m = pat.matcher(line);
 				if (m.find()) {
 					GalacticNight.log("CPU: "+m.group(1));
+					return m.group(1);
+				}
+			}
+		} catch (IOException e) {
+		}
+		
+		return null;
+	}
+
+	static public String getCPURevision() {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(new File("/proc/cpuinfo")));
+
+			String line;
+			Pattern pat = Pattern.compile("^Revision\\s*:\\s*([0-9a-fA-F]+)");
+			while(null != (line = reader.readLine())) {
+				Matcher m = pat.matcher(line);
+				if (m.find()) {
+					GalacticNight.log("CPU revision: "+m.group(1));
 					return m.group(1);
 				}
 			}

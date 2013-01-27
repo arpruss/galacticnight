@@ -41,7 +41,7 @@ public class GalacticNight extends Activity {
 		Log.e("GalacticNight", title);
 
 		alertDialog.setTitle(title);
-		alertDialog.setMessage(msg);
+		alertDialog.setMessage(Html.fromHtml(msg));
 		alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, 
 				"OK", 
 				new DialogInterface.OnClickListener() {

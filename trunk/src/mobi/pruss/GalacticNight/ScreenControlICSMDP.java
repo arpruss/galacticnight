@@ -19,7 +19,7 @@ public class ScreenControlICSMDP extends ScreenControl {
 	protected static final String TUNING_CONTROL = "/sys/class/mdnie/mdnie/tuning"; // [sic]
 //	protected static final String OUTDOOR_CONTROL = "/sdcard/mdnie/outdoor";
 //	protected static final String SCENARIO_CONTROL = "/sdcard/mdnie/scenario";
-//	protected static final String TUNING_CONTROL = "/sdcard/mdnie/tuning"; // [sic]
+//	protected static final String tuningControl = "/sdcard/mdnie/tuning"; // [sic]
 	
 	protected static final String SUBST = "GalacticNightTuning";
 
@@ -232,7 +232,8 @@ public class ScreenControlICSMDP extends ScreenControl {
 			new File(TUNING_CONTROL).exists() &&
 			new File(OUTDOOR_CONTROL).exists() &&
 			(cpu.contains("quincy") || cpu.contains("SAMSUNG M2_")
-			|| cpu.contains("SGH-T989")		
+			|| cpu.contains("SGH-T989") || cpu.contains("hercules") 
+			|| cpu.contains("SGH-I727")
 			);
 	}
 }
