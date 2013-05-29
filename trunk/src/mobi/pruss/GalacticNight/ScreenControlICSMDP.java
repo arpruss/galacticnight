@@ -233,7 +233,7 @@ public class ScreenControlICSMDP extends ScreenControl {
 			new File(OUTDOOR_CONTROL).exists() &&
 			(cpu.contains("quincy") || cpu.contains("SAMSUNG M2_")
 			|| cpu.contains("SGH-T989") || cpu.contains("hercules") 
-			|| cpu.contains("SGH-I727")
+			|| cpu.contains("SGH-I727") || cpu.toLowerCase().contains("msm8x60")
 			);
 	}
 }
