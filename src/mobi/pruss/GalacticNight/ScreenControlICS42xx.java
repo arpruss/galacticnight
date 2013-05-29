@@ -144,8 +144,9 @@ public class ScreenControlICS42xx extends ScreenControl {
 				context.stopService(new Intent(context, PowerOnService.class));
 			}
 			else if (s.equals("1") && success) {
-				GalacticNight.log("starting service");
+				GalacticNight.log("stopping service if needed");
 				context.stopService(new Intent(context, PowerOnService.class));
+				GalacticNight.log("starting service");
 				context.startService(new Intent(context, PowerOnService.class));
 			}
 		}
