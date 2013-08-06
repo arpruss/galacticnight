@@ -166,6 +166,7 @@ public class ScreenControlICS4212 extends ScreenControlICS42xx {
 	
 	@Override
 	public void set(int setting) {
+		GalacticNight.log("set called with "+setting);
 		int[][] tweak = getTweak(setting);
 		
 		if (tweak != null) {
@@ -190,6 +191,7 @@ public class ScreenControlICS4212 extends ScreenControlICS42xx {
 			setOSMode(mode);
 		}
 		else if (setting == OUTDOOR_ICS) {
+			GalacticNight.log("Setting ICS outdoor mode");
 			setOutdoor();
 		}
 	}

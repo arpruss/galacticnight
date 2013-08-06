@@ -113,6 +113,8 @@ public class ScreenControlICS42xx extends ScreenControl {
 
 	public static boolean tuningControlWrite(Context context, String s, boolean startServiceIfNeeded) {
 		String tuningControl = getTuningControl();
+
+		GalacticNight.log("tuningControlWrite:"+s+" "+startServiceIfNeeded);
 		
 		File tuning = new File(tuningControl);
 		if (!tuning.canWrite()) {
@@ -137,7 +139,7 @@ public class ScreenControlICS42xx extends ScreenControl {
 				}
 			}
 		}
-		
+				
 		if (startServiceIfNeeded) {
 			if (s.equals("0") || !success) {
 				GalacticNight.log("stopping service");

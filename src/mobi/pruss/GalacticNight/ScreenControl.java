@@ -238,13 +238,17 @@ abstract public class ScreenControl {
 		return null;
 	}
 	
-	protected int[][] getTweak(int setting) {
-		if (colors[setting] != null)
+	protected int[][] getTweak(int setting) {		
+		if (colors[setting] != null) {
+			GalacticNight.log("tweak available for setting "+setting);
 			return getTweak(colors[setting]);
+		}
 		else if (setting == REVERSE)
 			return getReverseTweak(new File(workingColorPath));
-		else
+		else {
+			GalacticNight.log("no tweak available");
 			return null;
+		}
 	}
 	
 	private int getInvertedPosition(int pos) {
@@ -499,5 +503,25 @@ abstract public class ScreenControl {
 	
 	public boolean support(int setting) {
 		return false;
+	}
+	
+	public void service() {
+		service(context);
+	}
+	
+	public void noservice() {
+		noservice(context);
+	}
+
+	public static void service(Context context) {
+		GalacticNight.log("stopping service if needed");
+		context.stopService(new Intent(context, PowerOnService.class));
+		GalacticNight.log("starting service");
+		context.startService(new Intent(context, PowerOnService.class));
+	}
+	
+	public static void noservice(Context context) {
+		GalacticNight.log("stopping service");
+		context.stopService(new Intent(context, PowerOnService.class));
 	}
 }

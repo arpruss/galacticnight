@@ -119,18 +119,21 @@ public class PowerOnService extends Service {
 		private void handleScreenOn(Context context) {
 			String data = ScreenControlICS42xx.tuningControlRead();
 			GalacticNight.log("Screen on");
-			if (data != null) 
+			if (data != null)  {
 				GalacticNight.log("data:"+data);
-			if (data != null && data.startsWith("/sdcard/mdnie/")) {
-				GalacticNight.log("rewriting tuningControl");
+			}
+			if (data != null && data.matches(".*/sdcard/.*/.*")) {
+//				GalacticNight.log("pausing");
+//				try {
+//					Thread.sleep(500,0);
+//				} catch (Exception e) {
+//				}
+				GalacticNight.log("rewriting tuningControl to "+data.replace(".*/sdcard/.*/", ""));
 				ScreenControlICS42xx.tuningControlWrite(context, "0", false);
 				ScreenControlICS42xx.modeControlWrite(ScreenControl.STANDARD);
-				ScreenControlICS42xx.tuningControlWrite(context, "1", false);				
-				ScreenControlICS42xx.tuningControlWrite(context, data.substring(14), false);
-//				try {
-//				Thread.sleep(500,0);
-//			} catch (Exception e) {
-//			}
+				ScreenControlICS42xx.tuningControlWrite(context, "1", false);
+				ScreenControlICS42xx.tuningControlWrite(context, 
+						data.replace(".*/sdcard/.*/", ""), false);
 			}
 			else {
 				GalacticNight.log("no tuningControl");
