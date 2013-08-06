@@ -51,28 +51,37 @@ public class ScreenControlICSMDP extends ScreenControl {
 			new File(workingColorPath).delete();
 			writeLine(OUTDOOR_CONTROL, "0");
 			writeLine(SCENARIO_CONTROL, "0");
+			noservice();
 			break;
 		case OUTDOOR:
 			new File(workingColorPath).delete();
 			writeLine(SCENARIO_CONTROL, "0");
 			writeLine(OUTDOOR_CONTROL, "1");
+			noservice();
+			break;
 		case RED:
 			tune(0xFF,0x00,0x00);
+			service();
 			break;
 		case GREEN:
 			tune(0x00,0xFF,0x00);
+			service();
 			break;
 		case BLUE:
 			tune(0x00,0x00,0xFF);
+			service();
 			break;
 		case NOBLUE:
 			tune(0xFF,0xFF,0);
+			service();
 			break;
 		case SEPIA:
 			tune(0xE9,0xD8,0xBA);
+			service();
 			break;
 		case REVERSE:
 			reverse();
+			service();
 			break;
 		}
 	}
@@ -165,6 +174,7 @@ public class ScreenControlICSMDP extends ScreenControl {
 	}
 	
 	public boolean tuningControlWrite(String s) {
+		GalacticNight.log("tCW");
 		return tuningControlWrite(this.context, s, true);
 	}
 	
@@ -173,6 +183,7 @@ public class ScreenControlICSMDP extends ScreenControl {
 	}
 
 	public static boolean tuningControlWrite(Context context, String s, boolean startServiceIfNeeded) {
+		GalacticNight.log("MDP:tCW");
 		File tuning = new File(TUNING_CONTROL);
 		if (!tuning.canWrite()) {
 			GalacticNight.log("unlocking");
@@ -185,7 +196,7 @@ public class ScreenControlICSMDP extends ScreenControl {
 			w = new FileWriter(new File(TUNING_CONTROL));
 			w.write(s+"\n");
 			w.close();
-			GalacticNight.log("Wrote "+s+" to "+TUNING_CONTROL);
+			GalacticNight.log("Wrote "+s+" to "+TUNING_CONTROL+" (MDP)");
 			success = true;
 		} catch (IOException e) {
 			GalacticNight.log("Error writing "+e);
@@ -197,6 +208,16 @@ public class ScreenControlICSMDP extends ScreenControl {
 			}
 		}
 		
+		GalacticNight.log("MDP.ssIN="+startServiceIfNeeded);
+		if (startServiceIfNeeded) {
+			if (s.equals("0") || !success) {
+				noservice(context);
+			}
+			else if (s.equals("1") && success) {
+				service(context);
+			}
+		}
+
 		return success;
 	}
 	
